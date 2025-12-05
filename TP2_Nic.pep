@@ -19,9 +19,10 @@ terme:   .WORD 0
 ;Registre
 regs:    .EQUATE 4
 regA:    .EQUATE -2
-regX:    .EQUATE -4             
-;---------------------------------------------------------------------
+regX:    .EQUATE -4 
+;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
+;--------------------------------------------------------------------
 ;Paramètres de : InitGen ----
 8_1prm1: .EQUATE 12          ;a
 8_1prm2: .EQUATE 10          ;c
@@ -72,24 +73,20 @@ InitGen: STA     regA,s      ;Allocation registre
 ;---------------------------------------------------------------------
 ;FONCTION : GenVal (prefix 2)
 ;Produit la prochaine valeur du générateur et la retourne
+;Générateur LCG
+;Variables locales -----
+2_locs:  .EQUATE 6           ;taille des variables locales
+2_loc1:  .EQUATE 0           ;compteur
+2_loc2:  .EQUATE 2           ;résultat de multiplication (a*Un)
+2_loc3:  .EQUATE 4           ;
 
-GenVal:  
+;Variables de retour ---
+2_rets:  .EQUATE 2
+2_ret1:  .EQUATE 0
 
-main:    LDA     n_cycle,d  
-         CPA     0,i
-         
-         BRNE    check       ;if n_cycle != 0 then goto check
-         BR      deb_mul     ;else goto deb_mul
-                             
-
-check:   LDA     terme,d     ;if terme==graine then return periode
-         CPA     graine,d
-
-         BREQ    fin
-;------------------------------------------------------------------
-;Calculs mathématiques (a * Un + c)
-deb_mul: LDA     0,i                     
-         STA     r_multi,d
+;-----------------------
+GenVal:  LDA     0,i                     
+         STA     2_loc1,s
 
          LDA     a,d         ;Mettre (a) dans le compteur
          STA     cpt,d
@@ -111,12 +108,9 @@ multi:   LDA     cpt,d       ;while cpt > 0
         
 fin_mul: LDA     r_multi,d   ;r_multi += c
          ADDA    c,d          
-           
-         LDA     1,i         ;periode++
-         ADDA    n_cycle,d    
-         STA     n_cycle,d
+          
 
-         BR      main         
+         RET0         
 
 
 
