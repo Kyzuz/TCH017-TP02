@@ -12,8 +12,9 @@ m_grain: "Graine : \x00"
 m_tCle:  "Taille de la clé : \x00"
 m_chi:   "Message chiffré : \x00"
 m_dchi:  "Message déchiffré : \x00"
-coefA:   .EQUATE 0
-coefC:   .EQUATE 0
+coefA:   .WORD 0
+coefC:   .WORD 0
+terme:   .WORD 0
 
 ;Registre
 regs:    .EQUATE 4
@@ -29,6 +30,19 @@ regX:    .EQUATE -4
 ;Paramètres de : GenVal -----
 
 
+;--------------------------------------------------------
+main:    STRO    m_init,d    ;printf("Message original\n")
+
+         
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
+         STRO    m_coefA,d   ;récupération du coefficient a
+         DECI    8_1prm1,s
+
+         STRO    m_coefC, d
+         DECI    8_1prm2,s
+
+         STRO    m_grain,d
+         DECI    8_1prm3,s
 
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
@@ -42,28 +56,67 @@ InitGen: STA     regA,s      ;Allocation registre
          STX     regX,s
          SUBSP   regs,i
          ;-----------------
-         STRO    m_init,d    ;printf("Message original\n")
-         
-         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
-         STRO    m_coefA,d   ;récupération du coefficient a
-         DECI    coefA,d
-         STRO    m_coefC,d   ;récupération du coefficient c
-         DECI    coefC,d
+         LDA     1_arg1,s    ;placement sur la pile de a
+         STA     coefA,d
 
-         LDA     coefA,d     ;placement de a sur la pile
-         STA     1_arg1,s
-         LDA     coefC,d     ;placement de c sur la pile
-         STA     1_arg2,s   
+         LDA     1_arg2,s    ;placement sur la pile de c
+         STA     coefC,d
 
-         STRO    m_grain,d   ;placement de la graine sur la pile
-         DECI    1_arg3,s         
+         LDA     1_arg3,s    ;placement sur la pile de terme/graine
+         STA     terme,d
          ;-----------------
          ADDSP   regs,i      ;Libération registre
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
 ;---------------------------------------------------------------------
+;FONCTION : GenVal (prefix 2)
+;Produit la prochaine valeur du générateur et la retourne
+
 GenVal:  
+
+main:    LDA     n_cycle,d  
+         CPA     0,i
+         
+         BRNE    check       ;if n_cycle != 0 then goto check
+         BR      deb_mul     ;else goto deb_mul
+                             
+
+check:   LDA     terme,d     ;if terme==graine then return periode
+         CPA     graine,d
+
+         BREQ    fin
+;------------------------------------------------------------------
+;Calculs mathématiques (a * Un + c)
+deb_mul: LDA     0,i                     
+         STA     r_multi,d
+
+         LDA     a,d         ;Mettre (a) dans le compteur
+         STA     cpt,d
+
+multi:   LDA     cpt,d       ;while cpt > 0
+         CPA     0,i
+
+         BREQ    fin_mul          ;break
+
+         LDA     r_multi,d        ;r_multi += terme
+         ADDA    terme,d
+         STA     r_multi,d
+
+         LDA     cpt,d            ;cpt--;
+         SUBA    1,i
+         STA     cpt,d
+
+         BR      multi       
+        
+fin_mul: LDA     r_multi,d   ;r_multi += c
+         ADDA    c,d          
+           
+         LDA     1,i         ;periode++
+         ADDA    n_cycle,d    
+         STA     n_cycle,d
+
+         BR      main         
 
 
 
