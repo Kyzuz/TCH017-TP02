@@ -3,20 +3,22 @@
 ;---------------------------------------------------------------------
          BR      Main 
 
-coefA:   .WORD 0             ;Variable globale du coeff. A
-coefC:   .WORD 0             ;Variable globale du coeff. C
-terme:   .WORD 0             ;Variable globale du terme
+;Variables globales
+coefA:   .WORD 0             ;Coefficient A
+coefC:   .WORD 0             ;Coefficient C
+terme:   .WORD 0             ;Terme
 
 ;Registre
-regs:    .EQUATE 4
-regA:    .EQUATE -2
-regX:    .EQUATE -4 
+regs:    .EQUATE 4           ;taille des registres
+regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
+regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
-;Nomenclature de nommage de variable du Main :
-;xxxx_ XY : X = appelant, Y = appelé, xxxx = type de variable
+;Nommage des variables du Main :
+;xxxx_XY : X = appelant, Y = appelé, xxxx = type de variable
+
 ;Paramètres de : InitGen ----
 args_81: .EQUATE 6           ;taille des arguments 
 arg1_81: .EQUATE 12          ;a
@@ -28,8 +30,16 @@ rets_82: .EQUATE 10          ;valeur de retour = a*Un+c (prochain terme)
 
 ;Paramètres de : GenCle -----
 args_83: .EQUATE 4
-arg1_83: .EQUATE -2000
-arg2_83: .EQUATE -2000
+arg1_83: .EQUATE -2000 
+arg2_83: .EQUATE -2200
+
+;Paramètres de : Xor16 ------
+
+;Paramètres de : Chiff ------
+
+;Paramètres de : Dechiff ----
+
+;Paramètres de : AffMsg -----
 
 
 ;--------------------------------------------------------
@@ -58,6 +68,7 @@ Main:    STRO    m_init,d    ;printf("Message original\n")
          LDA     arg3_81,s
          LDA     arg2_81,s
          LDA     arg3_81,s
+  
          ;------ fin appel -----
 
 
