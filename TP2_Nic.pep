@@ -52,18 +52,33 @@ res1_4:  .EQUATE -2
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
          ;-- string input --;
-         LDX     0,i
-str_inpt:CHARI  msgCla,sxf
+
+str_deb: LDX     0,i
+str_inpt:CHARI   msgCla,sxf
+         ;CHARO   msgCla,sxf 
+         LDBYTEA msgCla,sxf
+         ANDA    0x00FF,i 
+         ;STA     msgCla,sxf
+         CHARO   'n',i
+         CPA     10,i
          BREQ    e_strin,i
-
-         CPX     tabTai,i
-         STRO    m_errmsg,d
-         BR      Main,i
-
+        
+         
+         CHARO   'p',i
+         ;CPX     tabTai,i 
+         ;BREQ    str_err,i
          ADDX    1,i
          BR      str_inpt,i
+         CHARO   'e',i
+
+str_err: STRO    m_errmsg,d
+         BR      str_deb,i
+      
          
-e_strin: STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
+e_strin: STRO    msgCla,sf
+         ;BR      str_inpt
+         STOP
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
          STRO    m_coefA,d   ;récupération du coefficient a
          DECI    arg1_1,s   
 
@@ -72,6 +87,7 @@ e_strin: STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
 
          STRO    m_grain,d   ;récupération de la graine/terme
          DECI    arg3_1,s
+
 
          ;--- Appel de InitGen (1) ---
          STA     arg1_1,s    ;placement des arguments dans la pile
@@ -86,7 +102,7 @@ e_strin: STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
 
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
-;Spécifie les caractéristiques du générateur et la graine à utiliser
+;Spécifie les caractéristiques du générateur et la graine �  utiliser
 ;Récupère et place les caractéristiques du générateur sur la pile
 prms_1:  .EQUATE 6
 prm1_1:  .EQUATE -2          ;a       
@@ -161,18 +177,26 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
          RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
-;Génère N valeurs pseudo-aléatoires et les places dans un tableau
+;G�n�re N valeurs pseudo-al�atoires et les places dans un tableau
+GenCle:  STA     regA,s
+         STX     regX,s
+         SUBSP   p_locs,i
+         ;------------------
 
 
 
-
+         ;------------------
+         ADDSP   p_locs,i
+         LDX     regX,s
+         LDA     regA,s
+         RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : Xor16 (prefix 4)  
-;Effectue un XOR entre les deux valeurs 16 bits passées en paramètre
-; et retourne le résultat. 
+;Effectue un XOR entre les deux valeurs 16 bits pass�es en param�tre
+;et retourne le r�sultat. 
 prms_4:  .EQUATE 4           ;taille des paramètres/arguments
 prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
-prm1_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé)
+prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé) 
 
 locs_4:  .EQUATE 6           ;taille des variables locales
 loc1_4:  .EQUATE 0           ;OR
@@ -198,7 +222,7 @@ Xor16:   STA     regA,s
          LDX     regX,s
          RET0
 ;---------------------------------------------------------------------
-;Message à l'utilisateur (variables globales)
+;Message �  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
 m_carGen:.ASCII  "Caractéristiques du générateur LCG : \x00"   
 m_coefA: .ASCII  "Coeff. a : \x00"
