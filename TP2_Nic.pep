@@ -52,18 +52,30 @@ res1_4:  .EQUATE -2
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
          ;-- string input --;
-         LDX     0,i
-str_inpt:CHARI  msgCla,sxf
+str_deb:LDX     0,i
+
+str_inpt:CHARI   -1,s
+         LDBYTEA -1,s
+         ANDA    0x00FF,i
+         CPA     10,i
          BREQ    e_strin,i
 
-         CPX     tabTai,i
+         CPX     tabTai,i     ;
          STRO    m_errmsg,d
-         BR      Main,i
+         BR      str_deb,i
 
+         STBYTEA msgCla,sxf 
          ADDX    1,i
          BR      str_inpt,i
-         
-e_strin: STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
+
+e_strin: LDA     0,i         ;ajout manuel d'un dernier octet null 
+         ADDX    1,i
+         STBYTEA msgCla,sxf
+
+         ;STRO   msgCla,sf
+
+
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
          STRO    m_coefA,d   ;récupération du coefficient a
          DECI    arg1_1,s   
 
