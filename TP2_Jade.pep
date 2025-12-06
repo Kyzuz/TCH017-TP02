@@ -46,8 +46,39 @@ end:     LDA     0,i
 ;-----------------------------------------------------------
 ;----------------------fonction AffMsg----------------------
 ;-----------------------------------------------------------
+;zone parametres
+prms_7:  .EQUATE 6
+;ZONE variable locale
+locs_7:  .EQUATE 2
 
-AffMsg:  
+;parametres/variables
+prm1_7:  .EQUATE 6           ; addresse du tab
+prm2_7:  .EQUATE 4           ; taille du tab
+prm3_7:  .EQUATE 2           ; affichage ASCII ou caracteres(-1)
+loc1_7:  .EQUATE 0           ; compteur
+
+AffMsg:  LDA     prm3_7,s
+         CPA     -1,i
+         BREQ    aff_car,i
+         LDA     0,i
+         STA     loc1_7,s
+
+affASCII:LDX     loc1_7,s
+         CPX     prm2_7,s
+         BREQ    f_AffMsg,i
+
+         DECO    prm1_7,sxf
+         CHARO   ' ',i
+
+         ADDX    1,i
+         STX     loc1_7,s
+         BR      affASCII,i
+                    
+
+aff_car:STRO     prm1_7
+
+f_AffMsg:STOP
+ 
          
 
 .END

@@ -244,6 +244,57 @@ Xor16:   STA     regA,s
          LDA     regA,s
          LDX     regX,s
          RET0
+
+;---------------------------------------------------------------------
+;FONCTION: AffMsg (prefix 7)
+;zone parametres
+prms_7:  .EQUATE 6
+;ZONE variable locale
+locs_7:  .EQUATE 2
+
+;parametres/variables
+prm1_7:  .EQUATE 12          ; addresse du tab
+prm2_7:  .EQUATE 10          ; taille du tab
+prm3_7:  .EQUATE 8           ; affichage ASCII ou caracteres(-1)
+loc1_7:  .EQUATE 0           ; compteur
+
+AffMsg:  STA     regA,s
+         STX     regX,s
+         SUBSP   regs,i
+         SUBSP   locs_7,i
+
+;----------------------------------
+         LDA     prm3_7,s
+         CPA     -1,i
+         BREQ    aff_car,i
+         LDA     0,i
+         STA     loc1_7,s
+
+affASCII:LDX     loc1_7,s
+         CPX     prm2_7,s
+         BREQ    f_AffMsg,i
+
+         DECO    prm1_7,sxf
+         CHARO   ' ',i
+
+         ADDX    1,i
+         STX     loc1_7,s
+         BR      affASCII,i
+                    
+
+aff_car:STRO     prm1_7
+
+f_AffMsg:CHARO   '\n',i
+
+;-----------------------------------
+
+         ADDSP   locs_7,i
+         ADDSP   regs,i
+         LDX     regX,s
+         LDA     regA,s
+
+         RET0
+
 ;---------------------------------------------------------------------
 ;Message Ã  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
