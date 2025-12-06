@@ -17,7 +17,12 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
 ;Nommage des variables du Main :
-;xxxx_XY : X = appelant, Y = appelé, xxxx = type de variable
+;xxxx_X : X = préfixe appelé, xxxx = type de variable
+  
+tabTai:  .EQUATE 256         ;taille de tous les tableaux
+msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
+msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
+msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
 
 ;Paramètres de : InitGen(1)--
 arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
@@ -28,9 +33,9 @@ arg3_1: .EQUATE 8            ;pos. rel. de (terme) DANS Main
 res1_2: .EQUATE -2           ;pos. rel. de val. ret. DANS Main
 
 ;Paramètres de : GenCle(3)---
-args_3: .EQUATE 4           ;taille des arguments de GenCle
-arg1_3: .EQUATE -2000       ;pos. rel. de l'adr. de clé
-arg2_3: .EQUATE -2200       ;pos. rel. de la taile de clé
+args_3: .EQUATE 4            ;taille des arguments de GenCle
+arg1_3: .EQUATE -2000        ;pos. rel. de l'adr. de clé
+arg2_3: .EQUATE -2200        ;pos. rel. de la taile de clé
 
 ;Paramètres de : Xor16(4)----
 arg1_4:  .EQUATE 12
@@ -102,7 +107,7 @@ InitGen: STA     regA,s      ;Allocation registre
 
 ;Variables locales ------
 locs_2:  .EQUATE 4           ;taille des variables locales 
-loc1_2:  .EQUATE 0           ;compteur
+loc1_2:  .EQUATE 0           ;var. locale (a) dans la fonction
 loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
 ;Variables de retour ----
@@ -156,8 +161,8 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;Effectue un XOR entre les deux valeurs 16 bits passées en paramètre
 ; et retourne le résultat. 
 prms_4:  .EQUATE 4           ;taille des paramètres/arguments
-prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a)     
-prm1_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b)
+prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
+prm1_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé)
 
 locs_4:  .EQUATE 6           ;taille des variables locales
 loc1_4:  .EQUATE 0           ;OR
