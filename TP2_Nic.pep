@@ -17,7 +17,7 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
 ;Nommage des variables du Main :
-;xxxx_X : X = prÃ©fixe appelÃ©, xxxx = type de variable
+;xxxx_X : X = préfixe appelé, xxxx = type de variable
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 25
@@ -35,19 +35,19 @@ res1_2: .EQUATE -2           ;pos. rel. de val. ret. DANS Main
 
 ;ParamÃ¨tres de : GenCle(3)---
 args_3: .EQUATE 4            ;taille des arguments de GenCle
-arg1_3: .EQUATE -2000        ;pos. rel. de l'adr. de clÃ©
-arg2_3: .EQUATE -2200        ;pos. rel. de la taile de clÃ©
+arg1_3: .EQUATE -2000        ;pos. rel. de l'adr. de clé
+arg2_3: .EQUATE -2200        ;pos. rel. de la taile de clé
 
 ;ParamÃ¨tres de : Xor16(4)----
 arg1_4:  .EQUATE 12
 arg2_4:  .EQUATE 14
 res1_4:  .EQUATE -2
 
-;ParamÃ¨tres de : Chiff(5)----
+;Paramètres de : Chiff(5)----
 
-;ParamÃ¨tres de : Dechiff(6)--
+;Paramètres de : Dechiff(6)--
 
-;ParamÃ¨tres de : AffMsg(7)---
+;Paramètres de : AffMsg(7)---
 
 
 ;--------------------------------------------------------
@@ -68,27 +68,18 @@ str_inpt:CHARI   -1,s
          ADDX    1,i         ;X++
          BR      str_inpt,i  ;}
 
-
 e_strin: LDBYTEA 0,i         ;dernier octet = '\x00' 
          STBYTEA msgCla,sxf
          CHARO   "\n",i
-
-         STRO    msgCla,sf 
-         STOP
 ;------------------------------------------------------
-      
-
-
-
-         
-         STRO    m_carGen,d  ;printf("CaractÃ©ristiques du gÃ©nÃ©rateur\n") 
-         STRO    m_coefA,d   ;rÃ©cupÃ©ration du coefficient a
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
+         STRO    m_coefA,d   ;récupération du coefficient a
          DECI    arg1_1,s   
 
-         STRO    m_coefC, d  ;rÃ©cupÃ©ration du coefficient c
+         STRO    m_coefC, d  ;récupération du coefficient c
          DECI    arg2_1,s
 
-         STRO    m_grain,d   ;rÃ©cupÃ©ration de la graine/terme
+         STRO    m_grain,d   ;récupération de la graine/terme
          DECI    arg3_1,s
 
 
@@ -99,7 +90,7 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
  
          SUBSP   prms_1,i    ;allocation des arguments
          CALL    InitGen,i
-         ADDSP   prms_1,i    ;libÃ©ration arguments
+         ADDSP   prms_1,i    ;libération arguments
          ;--------- Fin appel --------
 
 
@@ -132,14 +123,14 @@ InitGen: STA     regA,s      ;Allocation registre
 ;---------------------------------------------------------------------
 ;FONCTION : GenVal (prefix 2)
 ;Produit la prochaine valeur du générateur et la retourne
-;GÃ©nÃ©rateur utilisÃ© : LCG
+;Générateur utilisée : LCG
 
-;Variables locales ------
+;Variables locales ----------
 locs_2:  .EQUATE 4           ;taille des variables locales 
 loc1_2:  .EQUATE 0           ;var. locale (a) dans la fonction
-loc2_2:  .EQUATE 2           ;rÃ©sultat de multiplication (a*Un)
+loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
-;Variables de retour ----
+;Variables de retour --------
 rets_2:  .EQUATE 2           ;taille de la variable de retour
 ret1_2:  .EQUATE 10          ;pos. rel. de la var. de ret. dans la fonction
 
@@ -181,15 +172,44 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
 ;Génère N valeurs pseudo-aléatoires et les places dans un tableau
+
+;Paramètres -------------------
+prms_3:  .EQUATE 4
+prm1_3:  .EQUATE -2
+prm2_3:  .EQUATE -4
+
+
+locs_3:  .EQUATE 2
+loc1_3:  .EQUATE 0
+rets_3:  .EQUATE 2
+res1_3:  .EQUATE -2
+
 GenCle:  STA     regA,s
          STX     regX,s
-         ;SUBSP   p_locs,i 
-         ;------------------
+         SUBSP   regs,i
+         SUBSP   p_locs,i 
+         ;----------------------
+         boucle
+
+
+         ;---- Call GenVal -----
+         SUBSP   rets_3,i
+         ;----------------------
+
+         CALL    GenVal,i
+
+         
+
+         LDA     res1_3,s    ;récupère 
+         STA     terme,d
+         ;----------------------
 
 
 
-         ;------------------
-         ;ADDSP   p_locs,i
+         ADDSP   rets_3,i
+         ;----- Fin GenVal -----
+         ;----------------------
+         ADDSP   p_locs,i
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
@@ -197,9 +217,9 @@ GenCle:  STA     regA,s
 ;FONCTION : Xor16 (prefix 4)  
 ;Effectue un XOR entre les deux valeurs 16 bits passées en paramètre
 ;et retourne le résultat. 
-prms_4:  .EQUATE 4           ;taille des paramÃ¨tres/arguments
-prm1_4:  .EQUATE 12          ;pos. rel. de la premiÃ¨re valeur (a=msg clair)     
-prm2_4:  .EQUATE 14          ;pos. rel. de la deuxiÃ¨me valeur (b=clÃ©) 
+prms_4:  .EQUATE 4           ;taille des paramètres/arguments
+prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
+prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé) 
 
 locs_4:  .EQUATE 6           ;taille des variables locales
 loc1_4:  .EQUATE 0           ;OR
@@ -227,13 +247,13 @@ Xor16:   STA     regA,s
 ;---------------------------------------------------------------------
 ;Message Ã  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
-m_carGen:.ASCII  "CaractÃ©ristiques du gÃ©nÃ©rateur LCG : \x00"   
+m_carGen:.ASCII  "Caractéristiques du gÃ©nÃ©rateur LCG : \x00"   
 m_coefA: .ASCII  "Coeff. a : \x00"
 m_coefC: .ASCII  "Coeff. c : \x00"
 m_grain: .ASCII  "Graine : \x00"
-m_tCle:  .ASCII  "Taille de la clÃ© : \x00"
-m_chi:   .ASCII  "Message chiffrÃ© : \x00"
-m_dchi:  .ASCII  "Message dÃ©chiffrÃ© : \x00"
+m_tCle:  .ASCII  "Taille de la clé : \x00"
+m_chi:   .ASCII  "Message chiffrée : \x00"
+m_dchi:  .ASCII  "Message déchiffré : \x00"
 m_errmsg:.ASCII  "Votre message est trop long \x00"
 
          STOP
