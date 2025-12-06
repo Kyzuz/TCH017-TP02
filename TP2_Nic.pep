@@ -20,6 +20,7 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;xxxx_X : X = préfixe appelé, xxxx = type de variable
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
+strMax:  .EQUATE 255
 msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
 msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
 msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
@@ -54,31 +55,36 @@ Main:    STRO    m_init,d    ;printf("Message original\n")
          ;-- string input --;
 
 str_deb: LDX     0,i
-str_inpt:CHARI   msgCla,sxf
-         ;CHARO   msgCla,sxf 
-         LDBYTEA msgCla,sxf
-         ANDA    0x00FF,i 
-         ;STA     msgCla,sxf
-         CHARO   'n',i
+
+str_inpt:CHARI   -1,s
+         LDBYTEA -1,s
+         ANDA    0x00FF,i
          CPA     10,i
-         BREQ    e_strin,i
-        
+         BREQ    e_strin
+
+         CPX     strMax,i
+         BREQ    e_strin
          
-         CHARO   'p',i
-         ;CPX     tabTai,i 
-         ;BREQ    str_err,i
+
+         STBYTEA msgCla,sxf 
          ADDX    1,i
          BR      str_inpt,i
-         CHARO   'e',i
 
-str_err: STRO    m_errmsg,d
-         BR      str_deb,i
-      
-         
-e_strin: STRO    msgCla,sf
-         ;BR      str_inpt
+e_strin: LDBYTEA 0,i         ;ajout manuel d'un dernier octet null 
+         ADDX    1,i
+         CHARO   '\n',i
+         STBYTEA msgCla,sxf
+
+         STRO    msgCla,d 
          STOP
-         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
+      
+
+
+
+
+
+         
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
          STRO    m_coefA,d   ;récupération du coefficient a
          DECI    arg1_1,s   
 
@@ -128,7 +134,7 @@ InitGen: STA     regA,s      ;Allocation registre
          RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : GenVal (prefix 2)
-;Produit la prochaine valeur du générateur et la retourne
+;Produit la prochaine valeur du g�n�rateur et la retourne
 ;Générateur utilisé : LCG
 
 ;Variables locales ------
@@ -180,13 +186,13 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;G�n�re N valeurs pseudo-al�atoires et les places dans un tableau
 GenCle:  STA     regA,s
          STX     regX,s
-         SUBSP   p_locs,i
+         ;SUBSP   p_locs,i 
          ;------------------
 
 
 
          ;------------------
-         ADDSP   p_locs,i
+         ;ADDSP   p_locs,i
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
