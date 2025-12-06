@@ -19,27 +19,29 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;Nommage des variables du Main :
 ;xxxx_XY : X = appelant, Y = appelé, xxxx = type de variable
 
-;Paramètres de : InitGen ----
-args_81: .EQUATE 6           ;taille des arguments 
-arg1_81: .EQUATE 12          ;a
-arg2_81: .EQUATE 10          ;c
-arg3_81: .EQUATE 8           ;graine
+;Paramètres de : InitGen(1)--
+arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
+arg2_1: .EQUATE 10           ;pos. rel. de (c) DANS Main
+arg3_1: .EQUATE 8            ;pos. rel. de (terme) DANS Main
 
-;Paramètres de : GenVal -----
-rets_82: .EQUATE 10          ;valeur de retour = a*Un+c (prochain terme) 
+;Paramètres de : GenVal(2)---               
+res1_2: .EQUATE -2           ;pos. rel. de val. ret. DANS Main
 
-;Paramètres de : GenCle -----
-args_83: .EQUATE 4
-arg1_83: .EQUATE -2000 
-arg2_83: .EQUATE -2200
+;Paramètres de : GenCle(3)---
+args_3: .EQUATE 4           ;taille des arguments de GenCle
+arg1_3: .EQUATE -2000       ;pos. rel. de l'adr. de clé
+arg2_3: .EQUATE -2200       ;pos. rel. de la taile de clé
 
-;Paramètres de : Xor16 ------
+;Paramètres de : Xor16(4)----
+arg1_4:  .EQUATE 12
+arg2_4:  .EQUATE 14
+res1_4:  .EQUATE -2
 
-;Paramètres de : Chiff ------
+;Paramètres de : Chiff(5)----
 
-;Paramètres de : Dechiff ----
+;Paramètres de : Dechiff(6)--
 
-;Paramètres de : AffMsg -----
+;Paramètres de : AffMsg(7)---
 
 
 ;--------------------------------------------------------
@@ -48,34 +50,30 @@ Main:    STRO    m_init,d    ;printf("Message original\n")
          
          STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
          STRO    m_coefA,d   ;récupération du coefficient a
-         DECI    arg1_81,s   
+         DECI    arg1_1,s   
 
          STRO    m_coefC, d  ;récupération du coefficient c
-         DECI    arg2_81,s
+         DECI    arg2_1,s
 
          STRO    m_grain,d   ;récupération de la graine/terme
-         DECI    arg3_81,s
+         DECI    arg3_1,s
 
-         ;-- appel de InitGen --
-         STA     arg1_81,s
-         STA     arg2_81,s
-         STA     arg3_81,s
-         SUBSP   args_81,i 
-         
+         ;--- Appel de InitGen (1) ---
+         STA     arg1_1,s    ;placement des arguments dans la pile
+         STA     arg2_1,s
+         STA     arg3_1,s  
+ 
+         SUBSP   prms_1,i    ;allocation des arguments
          CALL    InitGen,i
-
-         ADDSP   args_81,i
-         LDA     arg3_81,s
-         LDA     arg2_81,s
-         LDA     arg3_81,s
-  
-         ;------ fin appel -----
+         ADDSP   prms_1,i    ;libération arguments
+         ;--------- Fin appel --------
 
 
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
 ;Spécifie les caractéristiques du générateur et la graine à utiliser
 ;Récupère et place les caractéristiques du générateur sur la pile
+prms_1:  .EQUATE 6
 prm1_1:  .EQUATE -2          ;a       
 prm2_1:  .EQUATE -4          ;c
 prm3_1:  .EQUATE -6          ;graine
@@ -101,13 +99,15 @@ InitGen: STA     regA,s      ;Allocation registre
 ;FONCTION : GenVal (prefix 2)
 ;Produit la prochaine valeur du générateur et la retourne
 ;Générateur utilisé : LCG
-;Variables locales -----
+
+;Variables locales ------
 locs_2:  .EQUATE 4           ;taille des variables locales 
 loc1_2:  .EQUATE 0           ;compteur
 loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
-;Variables de retour ---
-ret1_2:  .EQUATE 0
+;Variables de retour ----
+rets_2:  .EQUATE 2           ;taille de la variable de retour
+ret1_2:  .EQUATE 10          ;pos. rel. de la var. de ret. dans la fonction
 
 GenVal:  STA     regA,s
          STX     regX,s
@@ -117,7 +117,7 @@ GenVal:  STA     regA,s
          LDA     0,i         ;a*Un = 0              
          STA     loc2_2,s
 
-         LDA     coefA,d         ;compteur = a 
+         LDA     coefA,d     ;compteur = a 
          STA     loc1_2,s
 
 whi_2:   LDA     loc1_2,s    ;while cpt > 0 {
@@ -140,16 +140,48 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
          STA     ret1_2,s    ;valeur de retour = a*Un + c
          ;-------------------
          ADDSP   locs_2,i
-         ADDSP   regs,s 
+         ADDSP   regs,i 
          LDX     regX,s         
          LDA     regA,s
          RET0                ;return
 ;---------------------------------------------------------------------
-    
+;FONCTION : GenCle (prefix 3)
+;Génère N valeurs pseudo-aléatoires et les places dans un tableau
 
 
 
 
+;---------------------------------------------------------------------
+;FONCTION : Xor16 (prefix 4)  
+;Effectue un XOR entre les deux valeurs 16 bits passées en paramètre
+; et retourne le résultat. 
+prms_4:  .EQUATE 4           ;taille des paramètres/arguments
+prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a)     
+prm1_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b)
+
+locs_4:  .EQUATE 6           ;taille des variables locales
+loc1_4:  .EQUATE 0           ;OR
+loc2_4:  .EQUATE 2           ;AND
+loc3_4:  .EQUATE 4           ;NOT
+
+rets_4:  .EQUATE 2           ;taille de la variable de retour
+ret1_4:  .EQUATE 16          ;pos. rel. de la var. de ret. dans la fonction
+
+Xor16:   STA     regA,s
+         STA     regX,s
+         SUBSP   regs,i
+         SUBSP   locs_4,i
+         ;-------------------
+
+
+
+         
+         ;-------------------
+         ADDSP   locs_4,i
+         ADDSP   regs,i
+         LDA     regA,s
+         LDX     regX,s
+         RET0
 ;---------------------------------------------------------------------
 ;Message à l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
