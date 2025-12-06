@@ -20,7 +20,7 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;xxxx_X : X = préfixe appelé, xxxx = type de variable
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
-strMax:  .EQUATE 255
+strMax:  .EQUATE 25
 msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
 msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
 msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
@@ -52,34 +52,31 @@ res1_4:  .EQUATE -2
 
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
-         ;-- string input --;
-
-str_deb: LDX     0,i
+         LDX     0,i         ;X = 0
 
 str_inpt:CHARI   -1,s
          LDBYTEA -1,s
-         ANDA    0x00FF,i
-         CPA     10,i
-         BREQ    e_strin
+         ANDA    0x00FF,i    ;masque sur octet fort
 
-         CPX     strMax,i
+         CPA     10,i        ;if (input == '10' == LF){
+         BREQ    e_strin          
+
+         CPX     strMax,i    ;elseif (X == 256 == strMax)
          BREQ    e_strin
          
+         STBYTEA msgCla,sxf  ;else msgCla[X] = CHARI
+         ADDX    1,i         ;X++
+         BR      str_inpt,i  ;}
 
-         STBYTEA msgCla,sxf 
-         ADDX    1,i
-         BR      str_inpt,i
 
-e_strin: LDBYTEA 0,i         ;ajout manuel d'un dernier octet null 
-         ADDX    1,i
-         CHARO   '\n',i
+e_strin: LDBYTEA 0,i         ;dernier octet = '\x00' 
          STBYTEA msgCla,sxf
+         CHARO   "\n",i
 
-         STRO    msgCla,d 
+         STRO    msgCla,sf 
          STOP
+;------------------------------------------------------
       
-
-
 
 
 
