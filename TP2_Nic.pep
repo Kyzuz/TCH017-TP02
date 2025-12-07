@@ -96,8 +96,6 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
 
 
          BR      F_PEP8,i
-
-
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
 ;SpÃ©cifie les caractÃ©ristiques du gÃ©nÃ©rateur et la graine Ã  utiliser
@@ -181,10 +179,13 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 prms_3:  .EQUATE 4
 prm1_3:  .EQUATE -2
 prm2_3:  .EQUATE -4
+                             
+;Variables locales -----------
+locs_3:  .EQUATE 4
+loc1_3:  .EQUATE 0           ;compteur général
+loc2_3:  .EQUATE 2           ;compteur clé
 
-
-locs_3:  .EQUATE 2
-loc1_3:  .EQUATE 0
+;Variables de retour ---------
 rets_3:  .EQUATE 2
 res1_3:  .EQUATE -2
 
@@ -192,24 +193,39 @@ GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
          SUBSP   p_locs,i 
-         ;-----boucle-----------
+         ;----------------------
+         LDX     0,i
+         STX     loc1_3,s
+         STX     loc2_3,s
+
+         LDX     loc1_3,s
+         LDBYTEA msgCla
+         
+         
+
+
+
+
+
+
+
+
+
 
          ;---- Call GenVal -----
          SUBSP   rets_3,i
          ;----------------------
-
          CALL    GenVal,i
-
-         
-
          LDA     res1_3,s    ;récupère 
          STA     terme,d
          ;----------------------
-
-
-
          ADDSP   rets_3,i
          ;----- Fin GenVal -----
+
+
+
+
+
          ;----------------------
          ADDSP   p_locs,i
          LDX     regX,s
@@ -312,7 +328,7 @@ f_AffMsg:CHARO   '\n',i      ;printf("\n")
 ;---------------------------------------------------------------------
 ;Message Ã  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
-m_carGen:.ASCII  "Caractéristiques du gÃ©nÃ©rateur LCG : \x00"   
+m_carGen:.ASCII  "Caractéristiques du générateur LCG : \x00"   
 m_coefA: .ASCII  "Coeff. a : \x00"
 m_coefC: .ASCII  "Coeff. c : \x00"
 m_grain: .ASCII  "Graine : \x00"
