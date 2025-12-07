@@ -264,30 +264,30 @@ AffMsg:  STA     regA,s
          SUBSP   locs_7,i
 
 ;----------------------------------
-         LDA     prm3_7,s
-         CPA     -1,i
+         LDA     prm3_7,s    ;affichage caractere ou ASCII
+         CPA     -1,i        ;if(prm3_7 != -1){
          BREQ    aff_car,i
          LDA     0,i
          STA     loc1_7,s
 
-affASCII:LDX     loc1_7,s
+affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
-         LDBYTEA prm1_7,sxf
+         LDBYTEA prm1_7,sxf  ;        printf("%d", (int*)msg[i])
          ANDA    0x00FF,i
          STA     -2,s
          DECO    -2,s
-         CHARO   ' ',i
+         CHARO   ' ',i       ;        printf(" ")
 
          ADDX    1,i
          STX     loc1_7,s
-         BR      affASCII,i
+         BR      affASCII,i  ;    }
                     
 
-aff_car:STRO     prm1_7
-
-f_AffMsg:CHARO   '\n',i
+aff_car:STRO     prm1_7      ;else{
+                             ;    printf("%s",prm1_7)}
+f_AffMsg:CHARO   '\n',i      ;printf("\n")
 
 ;-----------------------------------
 
