@@ -21,9 +21,9 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 25
-msgCla:  .EQUATE 0           ;dÃ©but de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;dÃ©but de la zone/tab du message chiffrÃ©
-msgDec:  .EQUATE 512         ;dÃ©but de la zone/tab du message dÃ©chiffrÃ©
+msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
+msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
+msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
 
 ;ParamÃ¨tres de : InitGen(1)--
 arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
@@ -38,7 +38,7 @@ args_3: .EQUATE 4            ;taille des arguments de GenCle
 arg1_3: .EQUATE -2000        ;pos. rel. de l'adr. de clé
 arg2_3: .EQUATE -2200        ;pos. rel. de la taile de clé
 
-;ParamÃ¨tres de : Xor16(4)----
+;Paramètres de : Xor16(4)----
 arg1_4:  .EQUATE 12
 arg2_4:  .EQUATE 14
 res1_4:  .EQUATE -2
@@ -98,8 +98,8 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          BR      F_PEP8,i
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
-;SpÃ©cifie les caractÃ©ristiques du gÃ©nÃ©rateur et la graine Ã  utiliser
-;RÃ©cupÃ¨re et place les caractÃ©ristiques du gÃ©nÃ©rateur sur la pile
+;Spécifie les caractéristiques du générateur et la graine Ã  utiliser
+;Récupère et place les caractéristiques du générateur sur la pile
 prms_1:  .EQUATE 6
 prm1_1:  .EQUATE -2          ;a       
 prm2_1:  .EQUATE -4          ;c
@@ -174,11 +174,12 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
 ;Génère N valeurs pseudo-aléatoires et les places dans un tableau
+;GenCle appel GenVal
 
 ;Paramètres -------------------
 prms_3:  .EQUATE 4
-prm1_3:  .EQUATE -2
-prm2_3:  .EQUATE -4
+prm1_3:  .EQUATE -2          ;adresse du début de la clé
+prm2_3:  .EQUATE -4          ;taille N de la clé
                              
 ;Variables locales -----------
 locs_3:  .EQUATE 4
@@ -193,13 +194,8 @@ GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
          SUBSP   p_locs,i 
-         ;----------------------
-         LDX     0,i
-         STX     loc1_3,s
-         STX     loc2_3,s
-
-         LDX     loc1_3,s
-         LDBYTEA msgCla
+         ;--------------------
+      
          
          
 
@@ -278,6 +274,28 @@ Xor16:   STA     regA,s
 
 ;---------------------------------------------------------------------
 ;FONCTION: Chiff (prefix 5)
+
+; Arguments -----
+prms_5:  .EQUATE 10
+arg1_5:  .EQUATE -4
+arg2_5:  .EQUATE -6
+arg3_5:  .EQUATE -8
+arg4_5:  .EQUATE -10
+arg5_5:  .EQUATE -12
+
+         LDX     0,i
+         STX     loc1_3,s
+         STX     loc2_3,s
+
+         LDX     loc1_3,s
+         LDBYTEA msgCla,sxf
+         ANDA    0x00FF,i
+
+         BREQ    fin_m,i
+
+         LDX     loc2_3,s
+         CPX     prm2_3,i
+         LDX     loc2_3,s 
 
 
 
