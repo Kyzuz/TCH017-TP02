@@ -85,7 +85,7 @@ affASCII:LDX     loc1_7,s
          BR      affASCII,i
                     
 
-aff_car:STRO     prm1_7,sf 
+aff_car: STRO     prm1_7,sf 
 
 f_AffMsg:STOP
  
