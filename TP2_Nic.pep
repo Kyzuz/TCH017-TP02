@@ -3,7 +3,12 @@
 ;---------------------------------------------------------------------
          BR      Main 
 
-;-----------------ARGUMENTS----------------------------------------
+;-------------------------   ARGUMENTS   -----------------------------
+;Nommage des variables
+;xxxx_X : X = préfixe de l'appelé, xxxx = type de variable
+
+;ARGUMENTS = Position relative des arguments DANS l'appelant
+;PARAMÈTES = Position relative des paramètres DANS l'appelé
 
 ;Arguments de : InitGen(1)--
 args_1:  .EQUATE 6
@@ -16,8 +21,8 @@ res1_2: .EQUATE -2           ;pos. rel. de val. ret.
 
 ;Arguments de : GenCle(3)---
 args_3: .EQUATE 4            ;taille des arguments de GenCle
-arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de cl?
-arg2_3: .EQUATE -4           ;pos. rel. de la taile de cl?
+arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clé 
+arg2_3: .EQUATE -4           ;pos. rel. de la taile de clé
 
 ;Arguments de : Xor16(4)----
 args_4:  .EQUATE 4
@@ -50,16 +55,12 @@ arg3_7:  .EQUATE -6
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
-;Nommage des variables du Main :
-;xxxx_X : X = pr?fixe appel?, xxxx = type de variable
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 255
 msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
 msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
 msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
-
-;--------------------------------------------------------------------
 
 ;Variables globales
 coefA:   .WORD 0             ;Coefficient A
@@ -74,16 +75,12 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
-;Nommage des variables du Main :
-;xxxx_X : X = pr?fixe appel?, xxxx = type de variable
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 25
 msgCla:  .EQUATE 0           ;d?but de la zone/tab du message clair
 msgChi:  .EQUATE 256         ;d?but de la zone/tab du message chiffr?
 msgDec:  .EQUATE 512         ;d?but de la zone/tab du message d?chiffr?
-
-
 
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
@@ -107,7 +104,7 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          STBYTEA msgCla,sxf
          CHARO   "\n",i
 ;------------------------------------------------------
-         STRO    m_carGen,d  ;printf("Caract?ristiques du g?n?rateur\n") 
+         STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
          STRO    m_coefA,d   ;r?cup?ration du coefficient a
          DECI    arg1_1,s   
 
@@ -129,16 +126,17 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          ;--------- Fin appel --------
 
 
-
-         BR      F_PEP8,i
+         BR      F_PEP8,i    ;Fin programme
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
-;Sp?cifie les caract?ristiques du g?n?rateur et la graine ?  utiliser
-;R?cup?re et place les caract?ristiques du g?n?rateur sur la pile
+;Spécifie les caractéristiques du générateur et la graine à utiliser
+;Récupère et place les caractéristiques du générateur sur la pile
+
+;Paramètres -----------------
 prms_1:  .EQUATE 6
-prm1_1:  .EQUATE -2          ;a       
-prm2_1:  .EQUATE -4          ;c
-prm3_1:  .EQUATE -6          ;graine
+prm1_1:  .EQUATE 12          ;a       
+prm2_1:  .EQUATE 10          ;c
+prm3_1:  .EQUATE 8           ;graine
 
 InitGen: STA     regA,s      ;Allocation registre
          STX     regX,s
@@ -159,17 +157,17 @@ InitGen: STA     regA,s      ;Allocation registre
          RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : GenVal (prefix 2)
-;Produit la prochaine valeur du g?n?rateur et la retourne
-;G?n?rateur utilis?e : LCG
+;Produit la prochaine valeur du générateur et la retourne
+;Générateur utilis?e : LCG
 
 ;Variables locales ----------
 locs_2:  .EQUATE 4           ;taille des variables locales 
 loc1_2:  .EQUATE 0           ;var. locale (a) dans la fonction
-loc2_2:  .EQUATE 2           ;r?sultat de multiplication (a*Un)
+loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
 ;Variables de retour --------
 rets_2:  .EQUATE 2           ;taille de la variable de retour
-ret1_2:  .EQUATE 10          ;pos. rel. de la var. de ret. dans la fonction
+ret1_2:  .EQUATE 10          ;prochaine valeur généré
 
 GenVal:  STA     regA,s
          STX     regX,s
@@ -208,29 +206,28 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
          RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
-;G?n?re N valeurs pseudo-al?atoires et les places dans un tableau
+;Génère N valeurs pseudo-aléatoires et les places dans un tableau
 ;GenCle appel GenVal
 
-;Param?tres -------------------
-prms_3:  .EQUATE 4
-prm1_3:  .EQUATE -2          ;adresse du d?but de la cl?
-prm2_3:  .EQUATE -4          ;taille N de la cl?
+;Paramètres ------------------
+prms_3:  .EQUATE 4           ;taille des paramètres
+prm1_3:  .EQUATE 14          ;adresse du début de la clé
+prm2_3:  .EQUATE 12          ;taille N de la clé
                              
 ;Variables locales -----------
-locs_3:  .EQUATE 4
-loc1_3:  .EQUATE 0           ;compteur g?n?ral
-loc2_3:  .EQUATE 2           ;compteur cl?
-
-;Variables de retour ---------
-rets_3:  .EQUATE 2
-res1_3:  .EQUATE -2
+locs_3:  .EQUATE 6           ;taille des variables locales
+loc1_3:  .EQUATE 0           ;prochaine val. gen
+loc2_3:  .EQUATE 2           ;compteur général
+loc3_3:  .EQUATE 4           ;compteur clé
 
 GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
-         SUBSP   p_locs,i 
+         SUBSP   locs_3,i 
          ;--------------------
-      
+         LDX     0,i
+         STX     loc2_3,s    ;compteur clé = 0
+         STX     loc3_3,s    ;compteur général = 0
          
          
 
@@ -243,32 +240,36 @@ GenCle:  STA     regA,s
 
 
 
-         ;---- Call GenVal -----
-         SUBSP   rets_3,i
-         ;----------------------
+         ;--- Call GenVal ----
+         SUBSP   rets_2,i    ;taille var. ret. GenVal
+         ;--------------------
          CALL    GenVal,i
-         LDA     res1_3,s    ;r?cup?re 
+
+
+
+         LDA     loc1_3,s    ;récupère la valeur généré
          STA     terme,d
-         ;----------------------
-         ADDSP   rets_3,i
-         ;----- Fin GenVal -----
+         ;--------------------
+         ADDSP   rets_2,i
+         ;---- Fin GenVal ----
 
 
 
 
 
-         ;----------------------
-         ADDSP   p_locs,i
+         ;--------------------
+         ADDSP   locs_3,i
+         ADDSP   regs,i
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
 ;---------------------------------------------------------------------
 ;FONCTION : Xor16 (prefix 4)  
 ;Effectue un XOR entre les deux valeurs 16 bits pass?es en param?tre
-;et retourne le r?sultat. 
+;et retourne le résultat. 
 prms_4:  .EQUATE 4           ;taille des param?tres/arguments
-prm1_4:  .EQUATE 12          ;pos. rel. de la premi?re valeur (a=msg clair)     
-prm2_4:  .EQUATE 14          ;pos. rel. de la deuxi?me valeur (b=cl?) 
+prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
+prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé) 
 
 locs_4:  .EQUATE 6           ;taille des variables locales
 loc1_4:  .EQUATE 0           ;OR
@@ -310,7 +311,6 @@ Xor16:   STA     regA,s
 ;---------------------------------------------------------------------
 ;FONCTION: Chiff (prefix 5)
 
-<<<<<<< HEAD
 ; Arguments -----
 prms_5:  .EQUATE 10
 arg1_5:  .EQUATE -4
@@ -332,7 +332,7 @@ arg5_5:  .EQUATE -12
          LDX     loc2_3,s
          CPX     prm2_3,i
          LDX     loc2_3,s 
-=======
+
 ;Param?tres de Chiff
 
  
