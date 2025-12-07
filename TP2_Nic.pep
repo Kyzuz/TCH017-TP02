@@ -3,6 +3,64 @@
 ;---------------------------------------------------------------------
          BR      Main 
 
+;-----------------ARGUMENTS----------------------------------------
+
+;Arguments de : InitGen(1)--
+args_1:  .EQUATE 6
+arg1_1: .EQUATE -2           ;pos. rel. de (a)
+arg2_1: .EQUATE -4           ;pos. rel. de (c)
+arg3_1: .EQUATE -6           ;pos. rel. de (terme)
+
+;Arguments de : GenVal(2)---               
+res1_2: .EQUATE -2           ;pos. rel. de val. ret.
+
+;Arguments de : GenCle(3)---
+args_3: .EQUATE 4            ;taille des arguments de GenCle
+arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clÈ
+arg2_3: .EQUATE -4           ;pos. rel. de la taile de clÈ
+
+;Arguments de : Xor16(4)----
+args_4:  .EQUATE 4
+arg1_4:  .EQUATE -4
+arg2_4:  .EQUATE -6
+
+;Arguments de : Chiff(5)----
+args_5:  .EQUATE 10
+arg1_5:  .EQUATE -4
+arg2_5:  .EQUATE -6
+arg3_5:  .EQUATE -8
+arg4_5:  .EQUATE -10
+arg5_5:  .EQUATE -12
+
+;Arguments de : Dechiff(6)--
+args_6:  .EQUATE 12
+arg1_6:  .EQUATE -2
+arg2_6:  .EQUATE -4
+arg3_6:  .EQUATE -6
+arg4_6:  .EQUATE -8
+arg5_6:  .EQUATE -10
+arg6_6:  .EQUATE -12
+
+;Arguments de : AffMsg(7)---
+args_7:  .EQUATE 6
+arg1_7:  .EQUATE -2
+arg2_7:  .EQUATE -4
+arg3_7:  .EQUATE -6
+
+;--------------------------------------------------------------------            
+;FONCTION : Main (prefixe 8)
+;--------------------------------------------------------------------
+;Nommage des variables du Main :
+;xxxx_X : X = prÈfixe appelÈ, xxxx = type de variable
+  
+tabTai:  .EQUATE 256         ;taille de tous les tableaux
+strMax:  .EQUATE 255
+msgCla:  .EQUATE 0           ;d√©but de la zone/tab du message clair
+msgChi:  .EQUATE 256         ;d√©but de la zone/tab du message chiffr√©
+msgDec:  .EQUATE 512         ;d√©but de la zone/tab du message d√©chiffr√©
+
+;--------------------------------------------------------------------
+
 ;Variables globales
 coefA:   .WORD 0             ;Coefficient A
 coefC:   .WORD 0             ;Coefficient C
@@ -13,44 +71,7 @@ regs:    .EQUATE 4           ;taille des registres
 regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
 regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
-;--------------------------------------------------------------------            
-;FONCTION : Main (prefixe 8)
-;--------------------------------------------------------------------
-;Nommage des variables du Main :
-;xxxx_X : X = prÈfixe appelÈ, xxxx = type de variable
-  
-tabTai:  .EQUATE 256         ;taille de tous les tableaux
-strMax:  .EQUATE 25
-msgCla:  .EQUATE 0           ;d√©but de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;d√©but de la zone/tab du message chiffr√©
-msgDec:  .EQUATE 512         ;d√©but de la zone/tab du message d√©chiffr√©
 
-;Param√®tres de : InitGen(1)--
-arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
-arg2_1: .EQUATE 10           ;pos. rel. de (c) DANS Main
-arg3_1: .EQUATE 8            ;pos. rel. de (terme) DANS Main
-
-;Param√®tres de : GenVal(2)---               
-res1_2: .EQUATE -2           ;pos. rel. de val. ret. DANS Main
-
-;Param√®tres de : GenCle(3)---
-args_3: .EQUATE 4            ;taille des arguments de GenCle
-arg1_3: .EQUATE -2000        ;pos. rel. de l'adr. de clÈ
-arg2_3: .EQUATE -2200        ;pos. rel. de la taile de clÈ
-
-;Param√®tres de : Xor16(4)----
-arg1_4:  .EQUATE 12
-arg2_4:  .EQUATE 14
-res1_4:  .EQUATE -2
-
-;ParamËtres de : Chiff(5)----
-
-;ParamËtres de : Dechiff(6)--
-
-;ParamËtres de : AffMsg(7)---
-arg1_7:  .EQUATE -2
-arg2_7:  .EQUATE -4
-arg3_7:  .EQUATE -6
 
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
@@ -281,10 +302,18 @@ Xor16:   STA     regA,s
 ;---------------------------------------------------------------------
 ;FONCTION: Chiff (prefix 5)
 
+;ParamËtres de Chiff
+
+ 
+
+
 
 
 ;----------------------------------------------------------------------
 ;FONCTION: Dechiff (prefix 6)
+
+;ParamËtres de Dechiff
+ 
 
 
 ;---------------------------------------------------------------------
