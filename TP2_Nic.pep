@@ -253,9 +253,22 @@ Xor16:   STA     regA,s
          SUBSP   locs_4,i
          ;-------------------
 
+         LDA     prm1_4,s    ; OR = a || b
+         ORA     prm2_4,s
+         STA     loc1_4,s
 
+         LDA     prm1_4,s    ; AND = a && b
+         ANDA    prm2_4,s
+         STA     loc2_4,s
 
-         
+         LDA     loc2_4,s    ; NOT = ~AND
+         NOTA
+         STA     loc3_4,s
+
+         LDA     loc3_4,s    ; return XOR = NOT && OR
+         ANDA    loc1_4,s   
+         STA     ret1_4,s
+       
          ;-------------------
          ADDSP   locs_4,i
          ADDSP   regs,i
@@ -292,12 +305,12 @@ AffMsg:  STA     regA,s
 
 ;----------------------------------
          LDA     prm3_7,s    ;affichage caractere ou ASCII
-         CPA     -1,i        ;if(prm3_7 != -1){
+         CPA     -1,i        ;if( aff != -1){
          BREQ    aff_car,i
          LDA     0,i
          STA     loc1_7,s
 
-affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
+affASCII:LDX     loc1_7,s    ;    for(int i=0; i< taille_msg; i++){
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
@@ -313,7 +326,7 @@ affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
                     
 
 aff_car:STRO     prm1_7      ;else{
-                             ;    printf("%s",prm1_7)}
+                             ;    printf("%s",str_msg)}
 f_AffMsg:CHARO   '\n',i      ;printf("\n")
 
 ;-----------------------------------
