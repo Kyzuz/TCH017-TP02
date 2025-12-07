@@ -289,12 +289,12 @@ AffMsg:  STA     regA,s
 
 ;----------------------------------
          LDA     prm3_7,s    ;affichage caractere ou ASCII
-         CPA     -1,i        ;if(prm3_7 != -1){
+         CPA     -1,i        ;if( aff != -1){
          BREQ    aff_car,i
          LDA     0,i
          STA     loc1_7,s
 
-affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
+affASCII:LDX     loc1_7,s    ;    for(int i=0; i< taille_msg; i++){
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
@@ -310,7 +310,7 @@ affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
                     
 
 aff_car:STRO     prm1_7      ;else{
-                             ;    printf("%s",prm1_7)}
+                             ;    printf("%s",str_msg)}
 f_AffMsg:CHARO   '\n',i      ;printf("\n")
 
 ;-----------------------------------
