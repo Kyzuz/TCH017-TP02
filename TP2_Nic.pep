@@ -1,5 +1,5 @@
 ;----------------------    TCH017 - TP02    --------------------------
-;--- Cryptage et décryptage avec les génrateurs pseudo-aléatoires ---
+;--- Cryptage et dÃ©cryptage avec les gÃ©nÃ©rateurs pseudo-alÃ©atoires ---
 ;---------------------------------------------------------------------
          BR      Main 
 
@@ -21,9 +21,9 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 25
-msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
-msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
+msgCla:  .EQUATE 0           ;dÃ©but de la zone/tab du message clair
+msgChi:  .EQUATE 256         ;dÃ©but de la zone/tab du message chiffrÃ©
+msgDec:  .EQUATE 512         ;dÃ©but de la zone/tab du message dÃ©chiffrÃ©
 
 ;ParamÃ¨tres de : InitGen(1)--
 arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
@@ -94,10 +94,14 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          ;--------- Fin appel --------
 
 
+
+         BR      F_PEP8,i
+
+
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
-;Spécifie les caractéristiques du générateur et la graine à utiliser
-;Récupère et place les caractéristiques du générateur sur la pile
+;SpÃ©cifie les caractÃ©ristiques du gÃ©nÃ©rateur et la graine Ã  utiliser
+;RÃ©cupÃ¨re et place les caractÃ©ristiques du gÃ©nÃ©rateur sur la pile
 prms_1:  .EQUATE 6
 prm1_1:  .EQUATE -2          ;a       
 prm2_1:  .EQUATE -4          ;c
@@ -116,7 +120,7 @@ InitGen: STA     regA,s      ;Allocation registre
          LDA     prm3_1,s    ;placement sur la pile de la graine/terme
          STA     terme,d
          ;-----------------
-         ADDSP   regs,i      ;Libération registre
+         ADDSP   regs,i      ;LibÃ©ration registre
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
@@ -172,28 +176,27 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
 ;Génère N valeurs pseudo-aléatoires et les places dans un tableau
-                                                          
-;Paramètres -----------------
+
+;Paramètres -------------------
 prms_3:  .EQUATE 4
 prm1_3:  .EQUATE -2
 prm2_3:  .EQUATE -4
 
-;Variables locales  ---------
-locs_3:  .EQUATE 4
-loc1_3:  .EQUATE 0           ;compteur de clé
-loc2_3:  .EQUATE -2          ;prochaine valeur généré
-                             
+
+locs_3:  .EQUATE 2
+loc1_3:  .EQUATE 0
+rets_3:  .EQUATE 2
+res1_3:  .EQUATE -2
+
 GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
          SUBSP   p_locs,i 
-         ;------------------
-         boucle
+         ;-----boucle-----------
 
-
-         ;--- Call GenVal ---
-         SUBSP   rets_2,i
-         ;-------------------
+         ;---- Call GenVal -----
+         SUBSP   rets_3,i
+         ;----------------------
 
          CALL    GenVal,i
 
@@ -201,13 +204,13 @@ GenCle:  STA     regA,s
 
          LDA     res1_3,s    ;récupère 
          STA     terme,d
-         ;-------------------
+         ;----------------------
 
 
 
          ADDSP   rets_3,i
-         ;--- Fin GenVal ----
-         ;-------------------
+         ;----- Fin GenVal -----
+         ;----------------------
          ADDSP   p_locs,i
          LDX     regX,s
          LDA     regA,s
@@ -245,6 +248,15 @@ Xor16:   STA     regA,s
          RET0
 
 ;---------------------------------------------------------------------
+;FONCTION: Chiff (prefix 5)
+
+
+
+;----------------------------------------------------------------------
+;FONCTION: Dechiff (prefix 6)
+
+
+;---------------------------------------------------------------------
 ;FONCTION: AffMsg (prefix 7)
 ;zone parametres
 prms_7:  .EQUATE 6
@@ -263,27 +275,30 @@ AffMsg:  STA     regA,s
          SUBSP   locs_7,i
 
 ;----------------------------------
-         LDA     prm3_7,s
-         CPA     -1,i
+         LDA     prm3_7,s    ;affichage caractere ou ASCII
+         CPA     -1,i        ;if(prm3_7 != -1){
          BREQ    aff_car,i
          LDA     0,i
          STA     loc1_7,s
 
-affASCII:LDX     loc1_7,s
+affASCII:LDX     loc1_7,s    ;    for(int i=0; i<prm2_7; i++){
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
-         DECO    prm1_7,sxf
-         CHARO   ' ',i
+         LDBYTEA prm1_7,sxf  ;        printf("%d", (int*)msg[i])
+         ANDA    0x00FF,i
+         STA     -2,s
+         DECO    -2,s
+         CHARO   ' ',i       ;        printf(" ")
 
          ADDX    1,i
          STX     loc1_7,s
-         BR      affASCII,i
+         BR      affASCII,i  ;    }
                     
 
-aff_car:STRO     prm1_7
-
-f_AffMsg:CHARO   '\n',i
+aff_car:STRO     prm1_7      ;else{
+                             ;    printf("%s",prm1_7)}
+f_AffMsg:CHARO   '\n',i      ;printf("\n")
 
 ;-----------------------------------
 
@@ -306,7 +321,7 @@ m_chi:   .ASCII  "Message chiffrée : \x00"
 m_dchi:  .ASCII  "Message déchiffré : \x00"
 m_errmsg:.ASCII  "Votre message est trop long \x00"
 
-         STOP
+F_PEP8:  STOP
          .END
 
 
