@@ -237,9 +237,22 @@ Xor16:   STA     regA,s
          SUBSP   locs_4,i
          ;-------------------
 
+         LDA     prm1_4,s
+         ORA     prm2_4,s
+         STA     loc1_4,s
 
+         LDA     prm1_4,s
+         ANDA    prm2_4,s
+         STA     loc2_4,s
 
-         
+         LDA     loc2_4,s
+         NOTA
+         STA     loc3_4,s
+
+         LDA     loc3_4,s
+         ANDA    loc1_4,s   
+         STA     ret1_4,s
+       
          ;-------------------
          ADDSP   locs_4,i
          ADDSP   regs,i
