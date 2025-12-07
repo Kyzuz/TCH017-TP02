@@ -1,5 +1,5 @@
 ;----------------------    TCH017 - TP02    --------------------------
-;--- Cryptage et décryptage avec les génrateurs pseudo-aléatoires ---
+;--- Cryptage et dÃ©cryptage avec les gÃ©nÃ©rateurs pseudo-alÃ©atoires ---
 ;---------------------------------------------------------------------
          BR      Main 
 
@@ -21,9 +21,9 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
   
 tabTai:  .EQUATE 256         ;taille de tous les tableaux
 strMax:  .EQUATE 25
-msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
-msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
+msgCla:  .EQUATE 0           ;dÃ©but de la zone/tab du message clair
+msgChi:  .EQUATE 256         ;dÃ©but de la zone/tab du message chiffrÃ©
+msgDec:  .EQUATE 512         ;dÃ©but de la zone/tab du message dÃ©chiffrÃ©
 
 ;ParamÃ¨tres de : InitGen(1)--
 arg1_1: .EQUATE 12           ;pos. rel. de (a) DANS Main
@@ -94,10 +94,13 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          ;--------- Fin appel --------
 
 
+
+         BR      F_PEP8,i
+
 ;---------------------------------------------------------------------
 ;FONCTION : InitGen (prefixe 1)
-;Spécifie les caractéristiques du générateur et la graine à utiliser
-;Récupère et place les caractéristiques du générateur sur la pile
+;SpÃ©cifie les caractÃ©ristiques du gÃ©nÃ©rateur et la graine Ã  utiliser
+;RÃ©cupÃ¨re et place les caractÃ©ristiques du gÃ©nÃ©rateur sur la pile
 prms_1:  .EQUATE 6
 prm1_1:  .EQUATE -2          ;a       
 prm2_1:  .EQUATE -4          ;c
@@ -172,17 +175,15 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 ;---------------------------------------------------------------------
 ;FONCTION : GenCle (prefix 3)
 ;Génère N valeurs pseudo-aléatoires et les places dans un tableau
-                                                          
-;Paramètres -----------------
+
+;Paramètres -------------------
 prms_3:  .EQUATE 4
 prm1_3:  .EQUATE -2
 prm2_3:  .EQUATE -4
 
-;Variables locales  ---------
+
 locs_3:  .EQUATE 2
 loc1_3:  .EQUATE 0
-                             
-;Variables de retour --------
 rets_3:  .EQUATE 2
 res1_3:  .EQUATE -2
 
@@ -190,13 +191,13 @@ GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
          SUBSP   p_locs,i 
-         ;------------------
+         ;----------------------
          boucle
 
 
-         ;--- Call GenVal ---
+         ;---- Call GenVal -----
          SUBSP   rets_3,i
-         ;-------------------
+         ;----------------------
 
          CALL    GenVal,i
 
@@ -204,13 +205,13 @@ GenCle:  STA     regA,s
 
          LDA     res1_3,s    ;récupère 
          STA     terme,d
-         ;-------------------
+         ;----------------------
 
 
 
          ADDSP   rets_3,i
-         ;--- Fin GenVal ----
-         ;-------------------
+         ;----- Fin GenVal -----
+         ;----------------------
          ADDSP   p_locs,i
          LDX     regX,s
          LDA     regA,s
@@ -246,6 +247,15 @@ Xor16:   STA     regA,s
          LDA     regA,s
          LDX     regX,s
          RET0
+
+;---------------------------------------------------------------------
+;FONCTION: Chiff (prefix 5)
+
+
+
+;----------------------------------------------------------------------
+;FONCTION: Dechiff (prefix 6)
+
 
 ;---------------------------------------------------------------------
 ;FONCTION: AffMsg (prefix 7)
@@ -312,7 +322,7 @@ m_chi:   .ASCII  "Message chiffrée : \x00"
 m_dchi:  .ASCII  "Message déchiffré : \x00"
 m_errmsg:.ASCII  "Votre message est trop long \x00"
 
-         STOP
+F_PEP8:  STOP
          .END
 
 
