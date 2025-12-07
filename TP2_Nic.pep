@@ -116,7 +116,7 @@ InitGen: STA     regA,s      ;Allocation registre
          LDA     prm3_1,s    ;placement sur la pile de la graine/terme
          STA     terme,d
          ;-----------------
-         ADDSP   regs,i      ;LibÃ©ration registre
+         ADDSP   regs,i      ;Libération registre
          LDX     regX,s
          LDA     regA,s
          RET0                ;return
@@ -179,13 +179,10 @@ prm1_3:  .EQUATE -2
 prm2_3:  .EQUATE -4
 
 ;Variables locales  ---------
-locs_3:  .EQUATE 2
-loc1_3:  .EQUATE 0
+locs_3:  .EQUATE 4
+loc1_3:  .EQUATE 0           ;compteur de clé
+loc2_3:  .EQUATE -2          ;prochaine valeur généré
                              
-;Variables de retour --------
-rets_3:  .EQUATE 2
-res1_3:  .EQUATE -2
-
 GenCle:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
@@ -195,7 +192,7 @@ GenCle:  STA     regA,s
 
 
          ;--- Call GenVal ---
-         SUBSP   rets_3,i
+         SUBSP   rets_2,i
          ;-------------------
 
          CALL    GenVal,i
@@ -276,10 +273,7 @@ affASCII:LDX     loc1_7,s
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
-         LDBYTEA prm1_7,sxf
-         ANDA    0x00FF,i
-         STA     -2,s
-         DECO    -2,s
+         DECO    prm1_7,sxf
          CHARO   ' ',i
 
          ADDX    1,i
