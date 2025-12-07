@@ -48,7 +48,9 @@ res1_4:  .EQUATE -2
 ;Paramètres de : Dechiff(6)--
 
 ;Paramètres de : AffMsg(7)---
-
+arg1_7:  .EQUATE -2
+arg2_7:  .EQUATE -4
+arg3_7:  .EQUATE -6
 
 ;--------------------------------------------------------
 Main:    STRO    m_init,d    ;printf("Message original\n") 
