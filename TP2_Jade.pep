@@ -2,7 +2,7 @@
 ;--- Cryptage et decryptage avec les generateurs pseudo-aleatoires ---
 ;---------------------------------------------------------------------
 
-         BR      AffMsg,i
+         BR      deb_msg,i
 
 
 
@@ -38,7 +38,7 @@ end:     LDA     0,i
          CHARO   '\n',i
          
          
-         STRO    msgCla,sf
+         ;STRO    msgCla,sf
 
 
 
@@ -57,6 +57,13 @@ prm2_7:  .EQUATE 4           ; taille du tab
 prm3_7:  .EQUATE 2           ; affichage ASCII ou caracteres(-1)
 loc1_7:  .EQUATE 0           ; compteur
 
+         LDA     msgCla,s
+         STA     prm1_7,s
+         LDA     16,i
+         STA     prm2_7,s
+         LDA     2,i
+         STA     prm3_7,s
+
 AffMsg:  LDA     prm3_7,s
          CPA     -1,i
          BREQ    aff_car,i
@@ -67,7 +74,10 @@ affASCII:LDX     loc1_7,s
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
-         DECO    prm1_7,sxf
+         LDBYTEA prm1_7,sxf
+         ANDA    0x00FF,i
+         STA     -2,s
+         DECO    -2,s
          CHARO   ' ',i
 
          ADDX    1,i
@@ -75,7 +85,7 @@ affASCII:LDX     loc1_7,s
          BR      affASCII,i
                     
 
-aff_car:STRO     prm1_7
+aff_car:STRO     prm1_7,sf 
 
 f_AffMsg:STOP
  

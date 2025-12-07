@@ -274,7 +274,10 @@ affASCII:LDX     loc1_7,s
          CPX     prm2_7,s
          BREQ    f_AffMsg,i
 
-         DECO    prm1_7,sxf
+         LDBYTEA prm1_7,sxf
+         ANDA    0x00FF,i
+         STA     -2,s
+         DECO    -2,s
          CHARO   ' ',i
 
          ADDX    1,i
