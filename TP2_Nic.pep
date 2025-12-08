@@ -92,9 +92,9 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
 ;Variables locales ----------
 locs_8:  .EQUATE 6
-loc1_8:  .EQUATE 0           
-loc2_8:  .EQUATE 2           
-loc3_8:  .EQUATE 4
+loc1_8:  .EQUATE 0           ;a         
+loc2_8:  .EQUATE 2           ;c
+loc3_8:  .EQUATE 4           ;graine
 
 ;-------------------------------------------------------------------- 
 Main:    SUBSP   tabTai,i    ;allocation du tab du message clair
@@ -129,13 +129,13 @@ e_strin: LDBYTEA 0,i         ;msgCla[255] = '\x00'
          ;--- Lecture caracteristique/graine/taille de la cle -------
          STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
          STRO    m_coefA,d   ;recuperation du coefficient a
-         DECI    arg1_1,s   
+         DECI    loc1_8,s   
 
          STRO    m_coefC, d  ;recuperation du coefficient c
-         DECI    arg2_1,s
+         DECI    loc2_8,s
 
          STRO    m_grain,d   ;recuperation de la graine/terme
-         DECI    arg3_1,s
+         DECI    loc3_8,s
          ;-----------------  Fin lecture usager  --------------------
 
 
