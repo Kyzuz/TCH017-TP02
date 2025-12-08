@@ -314,7 +314,7 @@ Xor16:   STA     regA,s
 ;FONCTION: Chiff (prefix 5)
 
 ;Parametres de Chiff
-prms_5:  .EQUATE 10
+prms_5:  .EQUATE 12
 prm1_5:  .EQUATE 278         ;addresse du message clair
 prm2_5:  .EQUATE 276         ;a
 prm3_5:  .EQUATE 274         ;c
@@ -362,11 +362,11 @@ Chiff:   STA     regA,s
          LDA     prm5_5,s    
          STA     arg2_3,s  
  
-         SUBSP   prms_1,i    ;allocation des arguments
+         SUBSP   prms_3,i    ;allocation des arguments
 
          CALL    InitGen,i
 
-         ADDSP   prms_1,i    ;liberation arguments
+         ADDSP   prms_3,i    ;liberation arguments
          ;--------- Fin appel --------
 
 
@@ -379,7 +379,7 @@ bou_chi: LDX     0,i
          LDBYTEA prm1_5,sxf
          ANDA    0x00FF,i
 
-         BREQ    fin_m,i
+         BREQ    fin_chi,i
 
          LDX     loc2_5,s    ;    if( cmpt_cle < taille_N ){
          CPX     prm5_5,i
@@ -430,20 +430,111 @@ fin_chi: LDA     loc1_5,s
 ;----------------------------------------------------------------------
 ;FONCTION: Dechiff (prefix 6)
 
-;Param?tres de Dechiff
- 
+;Parametres de Dechiff
+prms_6:  .EQUATE 14
+prm1_6:  .EQUATE 280         ;addresse du message chiffre
+prm2_6:  .EQUATE 278         ;taille du message chiffre
+prm3_6:  .EQUATE 276         ;a
+prm4_6:  .EQUATE 274         ;c
+prm5_6:  .EQUATE 272         ;graine
+prm6_6:  .EQUATE 270         ;taille N de la cle
+prm7_6:  .EQUATE 268         ;addresse du message dechiffre
+
+;Variables locales
+locs_6:  .EQUATE 260
+loc1_6:  .EQUATE 260         ;compteur general (longueur du message)
+loc2_6:  .EQUATE 258         ;compteur de la taille de la cle
+loc3_6:  .EQUATE 256         ;debut tab de la cle
 
 
+Dechiff: STA     regA,s
+         STX     regX,s
+         SUBSP   regs,i
+         SUBSP   locs_5,i
+         ;------------------ 
 
-;--- Appel de InitGen (1) ---
-         STA     arg1_1,s    ;placement des arguments dans la pile
+         ;--- Appel de InitGen (1) ---
+;placement des arguments dans la pile
+         LDA     prm3_6,s    ;InitGen( a, c, graine);
+         STA     arg1_1,s
+         LDA     prm4_6,s    
          STA     arg2_1,s
+         LDA     prm5_6,s
          STA     arg3_1,s  
  
          SUBSP   prms_1,i    ;allocation des arguments
          CALL    InitGen,i
          ADDSP   prms_1,i    ;liberation arguments
          ;--------- Fin appel --------
+
+
+         ;--- Appel de GenCle (3) ---
+;placement des arguments dans la pile
+         LDA     loc3_6,s    ;GenCle( *tab_cle, taille_N);
+         STA     arg1_3,s
+         LDA     prm6_6,s    
+         STA     arg2_3,s  
+ 
+         SUBSP   prms_3,i    ;allocation des arguments
+
+         CALL    InitGen,i
+
+         ADDSP   prms_3,i    ;liberation arguments
+         ;--------- Fin appel --------
+
+
+
+bou_dec: LDX     0,i
+         STX     loc1_6,s    ;int cmpt_gen, cmpt_cle =0;
+         STX     loc2_6,s
+
+         LDX     loc1_6,s    ;for(cmpt_gen = 0; cmpt_gen <= lng_msg; cmpt_gen ++){
+         CPX     prm2_6,s
+         BREQ    fin_dec,i
+
+         LDX     loc2_6,s    ;    if( cmpt_cle < taille_N ){
+         CPX     prm6_6,i
+         BREQ    fin_cle,i
+
+deb_XOR: LDX     loc2_6,s 
+                             ;        msgDec[cmpt_gen] = msgChi[cmpt_gen] ^ tabcle[cmpt_cle];
+         ;----Appel Xor16 (4)------
+         LDA     prm1_6,
+         STA     arg1_4,s
+         STX     arg2_4,s
+
+         SUBSP   rets_4,i
+         SUBSP   prms_4,i
+         CALL    Xor16,i
+         ADDSP   prms_4,i
+         ADDSP   rets_4,i
+
+         ;----Fin appel Xor16----
+
+         LDX     loc1_6,s
+         LDA     -2,s        ;retour de xor 
+         STBYTEA prm7_6,sxf
+
+         ADDX    1,i         ;        cmpt_gen ++;
+         STX     loc1_6,s
+
+         LDX     loc2_6,s    ;        cmpt_cle ++;
+         ADDX    1,i
+         STX     loc2_6,s    ;    
+
+         BR      bou_dec,i   ; 
+
+fin_cle: LDX     0,i         ;    }else{
+         STX     loc2_6,s    ;        cmpt_cle = 0; }
+         BR      deb_XOR,i
+
+
+         ;---------------
+fin_dec: ADDSP   locs_6,i
+         ADDSP   regs,i
+         LDA     regA,s
+         LDX     regX,s
+         RET0
 
 
 ;---------------------------------------------------------------------
@@ -500,15 +591,15 @@ f_AffMsg:CHARO   '\n',i      ;printf("\n")
          RET0
 
 ;---------------------------------------------------------------------
-;Message ?  l'utilisateur (variables globales)
+;Message a  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
-m_carGen:.ASCII  "Caract?ristiques du g?n?rateur LCG : \x00"   
+m_carGen:.ASCII  "Caracteristiques du generateur LCG : \x00"   
 m_coefA: .ASCII  "Coeff. a : \x00"
 m_coefC: .ASCII  "Coeff. c : \x00"
 m_grain: .ASCII  "Graine : \x00"
-m_tCle:  .ASCII  "Taille de la cl? : \x00"
-m_chi:   .ASCII  "Message chiffr?e : \x00"
-m_dchi:  .ASCII  "Message d?chiffr? : \x00"
+m_tCle:  .ASCII  "Taille de la cle : \x00"
+m_chi:   .ASCII  "Message chiffre : \x00"
+m_dchi:  .ASCII  "Message dechiffre : \x00"
 
 F_PEP8:  STOP
          .END
