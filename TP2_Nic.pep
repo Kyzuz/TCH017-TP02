@@ -235,10 +235,10 @@ GenCle:  STA     regA,s      ;préparation de GenVal
          SUBSP   locs_3,i 
          ;--------------------
          LDX     0,i
-         STX     loc2_3,s    ;compteur clé = 0
-         ;STX     loc3_3,s    ;compteur général = 0
+         ;STX     loc2_3,s    ;compteur clé = 0 
+         STX     loc3_3,s    ;compteur général = 0
          
-for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { 
+for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { ;ERROR: Symbol loc2_3 is used but not defined.
          CPX     prm2_3,i
          BREQ    eof_3,i          ;goto 3_eof
 
@@ -383,7 +383,7 @@ bou_chi: LDX     0,i
 deb_XOR: LDX     loc2_5,s 
                              ;        msgChi[cmpt_gen] = msgCla[cmpt_gen] ^ tabcle[cmpt_cle];
          ;----Appel Xor16 (4)------
-         LDA     prm1_5, ;ERROR: Malformed addressing mode.
+         LDA     prm1_5,s 
          STA     arg1_4,s
          STX     arg2_4,s
 
@@ -396,7 +396,7 @@ deb_XOR: LDX     loc2_5,s
          ;----Fin appel Xor16----
 
          LDX     loc1_5,s
-         LDA     -2,s        ;retour de xor
+         LDA     res1_4,s        ;retour de xor
          ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
 
@@ -490,12 +490,12 @@ bou_dec: LDX     0,i
 
          LDX     loc2_6,s    ;    if( cmpt_cle < taille_N ){
          CPX     prm6_6,i
-         BREQ    fin_cle,i
+         BREQ    fincle_6,i
 
-deb_XOR: LDX     loc2_6,s 
+debXOR_6:LDX     loc2_6,s 
                              ;        msgDec[cmpt_gen] = msgChi[cmpt_gen] ^ tabcle[cmpt_cle];
          ;----Appel Xor16 (4)------
-         LDA     prm1_6,
+         LDA     prm1_6,s
          STA     arg1_4,s
          STX     arg2_4,s
 
@@ -508,7 +508,7 @@ deb_XOR: LDX     loc2_6,s
          ;----Fin appel Xor16----
 
          LDX     loc1_6,s
-         LDA     -2,s        ;retour de xor
+         LDA     res1_4,s        ;retour de xor
          ANDA    0x00FF,i 
          STBYTEA prm7_6,sxf
 
@@ -521,9 +521,9 @@ deb_XOR: LDX     loc2_6,s
 
          BR      bou_dec,i   ; 
 
-fin_cle: LDX     0,i         ;    }else{
+fincle_6:LDX     0,i         ;    }else{ 
          STX     loc2_6,s    ;        cmpt_cle = 0; }
-         BR      deb_XOR,i
+         BR      debXOR_6,i
 
 
          ;---------------
@@ -574,7 +574,7 @@ affASCII:LDX     loc1_7,s    ;    for(int i=0; i< taille_msg; i++){
          BR      affASCII,i  ;    }
                     
 
-aff_car:STRO     prm1_7      ;else{
+aff_car:STRO     prm1_7,sf   ;else{ 
                              ;    printf("%s",str_msg)}
 f_AffMsg:CHARO   '\n',i      ;printf("\n")
 
