@@ -181,7 +181,7 @@ loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
 ;Variables de retour --------
 rets_2:  .EQUATE 2           ;taille de la variable de retour
-ret1_2:  .EQUATE 10          ;prochaine valeur généré
+ret1_2:  .EQUATE 10          ;pos .rel. de la var. ret. DANS appelant
 
 GenVal:  STA     regA,s
          STX     regX,s
