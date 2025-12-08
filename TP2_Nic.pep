@@ -86,26 +86,21 @@ msgCla:  .EQUATE 518         ;debut de la zone/tab du message clair
 msgChi:  .EQUATE 262         ;debut de la zone/tab du message chiffre
 msgDec:  .EQUATE 6           ;debut de la zone/tab du message dechiffre
 
-;Variables globales
+;Variables globales ----------
 coefA:   .WORD 0             ;Coefficient A
 coefC:   .WORD 0             ;Coefficient C
 terme:   .WORD 0             ;Terme
 
-;Registre
+;Registre --------------------
 regs:    .EQUATE 4           ;taille des registres
 regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
 regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
-;--------------------------------------------------------------------            
-;FONCTION : Main (prefixe 8)
-;--------------------------------------------------------------------
-
-;---variables locales-----
+;Variables locales ----------
 locs_8:  .EQUATE 6
 loc1_8:  .EQUATE 0
 loc2_8:  .EQUATE 2
 loc3_8:  .EQUATE 4
-
 
 ;-------------------------------------------------------------------- 
 Main:    SUBSP   tabTai,i    ;allocation du tab du message clair
