@@ -9,26 +9,28 @@
 ;ARGUMENTS = Position relative des arguments DANS l'appelant
 ;PARAMETES = Position relative des parametres DANS l'appelé
 
-;Arguments de : InitGen(1)--
+;Termes de : InitGen(1)--
 args_1: .EQUATE 6
 arg1_1: .EQUATE -2           ;pos. rel. de (a)
 arg2_1: .EQUATE -4           ;pos. rel. de (c)
 arg3_1: .EQUATE -6           ;pos. rel. de (terme)
 
-;Arguments de : GenVal(2)---               
+;Termes de : GenVal(2)---               
 res1_2: .EQUATE -2           ;pos. rel. de val. ret.
 
-;Arguments de : GenCle(3)---
+;Termes de : GenCle(3)---
 args_3: .EQUATE 4            ;taille des arguments de GenCle
 arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clé 
 arg2_3: .EQUATE -4           ;pos. rel. de la taile de clé
 
-;Arguments de : Xor16(4)----
+;Termes de : Xor16(4)----
 args_4:  .EQUATE 4
 arg1_4:  .EQUATE -4
 arg2_4:  .EQUATE -6
 
-;Arguments de : Chiff(5)----
+res1_4:  .EQUATE -2
+
+;Termes de : Chiff(5)----
 args_5:  .EQUATE 12
 arg1_5:  .EQUATE -4
 arg2_5:  .EQUATE -6
@@ -37,7 +39,9 @@ arg4_5:  .EQUATE -10
 arg5_5:  .EQUATE -12
 arg6_5:  .EQUATE -14
 
-;Arguments de : Dechiff(6)--
+res1_5:  .EQUATE -2
+
+;Termes de : Dechiff(6)--
 args_6:  .EQUATE 14
 arg1_6:  .EQUATE -2
 arg2_6:  .EQUATE -4
@@ -45,18 +49,16 @@ arg3_6:  .EQUATE -6
 arg4_6:  .EQUATE -8
 arg5_6:  .EQUATE -10
 arg6_6:  .EQUATE -12
-arg7_7:  .EQUATE -14
+arg7_6:  .EQUATE -14
 
-;Arguments de : AffMsg(7)---
+;Termes de : AffMsg(7)---
 args_7:  .EQUATE 6
 arg1_7:  .EQUATE -2
 arg2_7:  .EQUATE -4
 arg3_7:  .EQUATE -6
 
-;Res
-res1_2:  .EQUATE -2
-res1_4:  .EQUATE -2
-res1_5:  .EQUATE -2
+
+
 
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
@@ -229,9 +231,10 @@ prm1_3:  .EQUATE 14          ;adresse du début de la clé
 prm2_3:  .EQUATE 12          ;taille N de la clé
                              
 ;Variables locales -----------
-locs_3:  .EQUATE 4          ;taille des variables locales
+locs_3:  .EQUATE 6           ;taille des variables locales
 loc1_3:  .EQUATE 0           ;prochaine val. gen
-loc2_3:  .EQUATE 2           ;compteur clé
+;loc2_3:  .EQUATE 2           ;compteur général
+loc3_3:  .EQUATE 4           ;compteur clé
 
 GenCle:  STA     regA,s      ;préparation de GenVal
          STX     regX,s
@@ -239,11 +242,13 @@ GenCle:  STA     regA,s      ;préparation de GenVal
          SUBSP   locs_3,i 
          ;--------------------
          LDX     0,i
-         STX     loc2_3,s    ;compteur général = 0
+         ;STX     loc2_3,s    ;compteur clé = 0 
+         STX     loc3_3,s    ;compteur général = 0
          
-for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { 
+for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { ;ERROR: Symbol loc2_3 is used but not defined.
          CPX     prm2_3,i
          BREQ    eof_3,i          ;goto 3_eof
+
  
          ;------------------- Call GenVal ---------------------------
          SUBSP   rets_2,i    ;taille var. ret. GenVal
@@ -398,7 +403,7 @@ deb_XOR: LDX     loc2_5,s
          ;----Fin appel Xor16----
 
          LDX     loc1_5,s
-         LDA     res1_4,s        ;retour de xor ;ERROR: Symbol res1_4 is used but not defined.
+         LDA     res1_4,s        ;retour de xor
          ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
 
