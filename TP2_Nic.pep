@@ -224,10 +224,9 @@ prm1_3:  .EQUATE 14          ;adresse du début de la clé
 prm2_3:  .EQUATE 12          ;taille N de la clé
                              
 ;Variables locales -----------
-locs_3:  .EQUATE 6           ;taille des variables locales
+locs_3:  .EQUATE 4          ;taille des variables locales
 loc1_3:  .EQUATE 0           ;prochaine val. gen
-;loc2_3:  .EQUATE 2           ;compteur général
-loc3_3:  .EQUATE 4           ;compteur clé
+loc2_3:  .EQUATE 2           ;compteur clé
 
 GenCle:  STA     regA,s      ;préparation de GenVal
          STX     regX,s
@@ -235,13 +234,11 @@ GenCle:  STA     regA,s      ;préparation de GenVal
          SUBSP   locs_3,i 
          ;--------------------
          LDX     0,i
-         ;STX     loc2_3,s    ;compteur clé = 0 
-         STX     loc3_3,s    ;compteur général = 0
+         STX     loc2_3,s    ;compteur général = 0
          
-for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { ;ERROR: Symbol loc2_3 is used but not defined.
+for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { 
          CPX     prm2_3,i
          BREQ    eof_3,i          ;goto 3_eof
-
  
          ;------------------- Call GenVal ---------------------------
          SUBSP   rets_2,i    ;taille var. ret. GenVal
@@ -396,7 +393,7 @@ deb_XOR: LDX     loc2_5,s
          ;----Fin appel Xor16----
 
          LDX     loc1_5,s
-         LDA     res1_4,s        ;retour de xor
+         LDA     res1_4,s        ;retour de xor ;ERROR: Symbol res1_4 is used but not defined.
          ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
 
