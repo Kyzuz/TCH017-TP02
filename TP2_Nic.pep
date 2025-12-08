@@ -25,6 +25,8 @@ args_3: .EQUATE 4            ;taille des arguments de GenCle
 arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clé 
 arg2_3: .EQUATE -4           ;pos. rel. de la taile de clé
 
+size_3:  .EQUATE 14          ;taille de la pile de la fonction Gencle
+
 ;Termes d'usage de : Xor16(4)----
 args_4:  .EQUATE 4
 arg1_4:  .EQUATE -4
@@ -356,6 +358,7 @@ Chiff:   STA     regA,s
          ;--- Appel de GenCle (3) ---
 ;placement des arguments dans la pile
          LDA     loc3_5,s    ;GenCle( *tab_cle, taille_N);
+         ADDA    size_3,i    ;ajuste adresse du tableau pour Gencle
          STA     arg1_3,s
          LDA     prm5_5,s    
          STA     arg2_3,s  
@@ -399,7 +402,7 @@ deb_XOR: LDX     loc2_5,s
          ;----Fin appel Xor16----
 
          LDX     loc1_5,s
-         LDA     res1_4,s        ;retour de xor ;ERROR: Symbol res1_4 is used but not defined.
+         LDA     res1_4,s        ;retour de xor 
          ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
 
