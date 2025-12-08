@@ -37,11 +37,11 @@ res1_4:  .EQUATE -2          ;pos. rel. de val. ret.
 
 ;Termes d'usage de : Chiff(5)----
 args_5:  .EQUATE 12
-arg1_5:  .EQUATE -4
-arg2_5:  .EQUATE -6
-arg3_5:  .EQUATE -8
-arg4_5:  .EQUATE -10
-arg5_5:  .EQUATE -12
+arg1_5:  .EQUATE -4          ;addresse du message clair
+arg2_5:  .EQUATE -6          ;a
+arg3_5:  .EQUATE -8          ;c
+arg4_5:  .EQUATE -10         ;graine
+arg5_5:  .EQUATE -12         ;taille de la cle
 arg6_5:  .EQUATE -14
 
 rets_5:  .EQUATE 2           ;taille de la variable de retour
@@ -91,10 +91,12 @@ regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
 regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
 ;Variables locales ----------
-locs_8:  .EQUATE 6
+locs_8:  .EQUATE 8
 loc1_8:  .EQUATE 0           ;a         
 loc2_8:  .EQUATE 2           ;c
 loc3_8:  .EQUATE 4           ;graine
+loc4_8:  .EQUATE 6           ;taille de la cle
+loc5_8:  .EQUATE 8           ;longueur du message chiffre
 
 ;-------------------------------------------------------------------- 
 Main:    SUBSP   tabTai,i    ;allocation du tab du message clair
@@ -136,18 +138,64 @@ e_strin: LDBYTEA 0,i         ;msgCla[255] = '\x00'
 
          STRO    m_grain,d   ;recuperation de la graine/terme
          DECI    loc3_8,s
+
+         STRO    m_tCle,d    ;recuperation de la taille de la cle
+         DECI    loc4_8,s
          ;-----------------  Fin lecture usager  --------------------
 
 
          ;----chiffrer le message---------
-         ;--- Appel de Chiff (6) ---
+         ;--- Appel de Chiff (5) ---
 ;placement des arguments dans la pile
-         ;LDA     
+         LDA     msgCla,i
+         ADDA    size_5,i
+         STA     arg1_5,s
+
+         LDA     loc1_8,s
+         STA     arg2_5,s
+
+         LDA     loc2_8,s
+         STA     arg3_5,s
+
+         LDA     loc3_8,s
+         STA     arg4_5,s
+
+         LDA     loc4_8,s
+         STA     arg5_5,s
+
+         LDA     msgChi,i
+         ADDA    size_5,i
+         STA     arg6_5,s
 
 
+         SUBSP   rets_5,i
+         SUBSP   prms_5,i
+         CALL    Chiff,i
+         ADDSP   prms_5,i
+         ADDSP   rets_5,i
+         ;---fin appel Chiff-----
+
+         LDA     res1_5,s
+         STA     loc5_8,s
 
 
+         ;afficher message en code ASCII
+         ;--- Appel de AffMsg (7) ---
+;placement des arguments dans la pile
+         LDA     msgChi,i
+         ADDA    size_7,i
+         STA     arg1_7,s
 
+         LDA     loc5_8,s
+         STA     arg2_7,s
+
+         LDA     2,i
+         STA     arg3_7,s
+
+         SUBSP   prms_7,i
+         CALL    AffMsg,i
+         ADDSP   prms_7,i
+         ;-----fin appel AffMsg---
 
 
          
