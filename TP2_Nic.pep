@@ -53,6 +53,11 @@ arg1_7:  .EQUATE -2
 arg2_7:  .EQUATE -4
 arg3_7:  .EQUATE -6
 
+;Res
+res1_2:  .EQUATE -2
+res1_4:  .EQUATE -2
+res1_5:  .EQUATE -2
+
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
@@ -265,7 +270,7 @@ eof_3:   ADDSP   locs_3,i    ;sortie GenVal
 ;FONCTION : Xor16 (prefix 4)  
 ;Effectue un XOR entre les deux valeurs 16 bits pass?es en param?tre
 ;et retourne le résultat. 
-prms_4:  .EQUATE 4           ;taille des param?tres/arguments
+prms_4:  .EQUATE 4           ;taille des parametres/arguments
 prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
 prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé) 
 
@@ -323,7 +328,7 @@ loc3_5:  .EQUATE 256         ;debut tab de la cle
 
 ;Valeurs de retour
 rets_5:  .EQUATE 2
-res1_5:  .EQUATE 280         ;longueur du message
+ret1_5:  .EQUATE 280         ;longueur du message
 
 
 Chiff:   STA     regA,s
@@ -411,7 +416,7 @@ fin_cle: LDX     0,i         ;    }else{
          BR      deb_XOR,i
 
 fin_chi: LDA     loc1_5,s
-         STA     res1_5,s    ; return lng_msg = cmpt_gen;
+         STA     ret1_5,s    ; return lng_msg = cmpt_gen;
 
          ;-----------------
          ADDSP   locs_5,i
