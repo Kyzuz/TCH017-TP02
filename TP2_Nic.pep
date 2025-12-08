@@ -473,6 +473,7 @@ Dechiff: STA     regA,s
          ;--- Appel de GenCle (3) ---
 ;placement des arguments dans la pile
          LDA     loc3_6,s    ;GenCle( *tab_cle, taille_N);
+         ADDA    size_3,i    ;ajuste adresse du tableau pour Gencle
          STA     arg1_3,s
          LDA     prm6_6,s    
          STA     arg2_3,s  
