@@ -30,21 +30,23 @@ arg1_4:  .EQUATE -4
 arg2_4:  .EQUATE -6
 
 ;Arguments de : Chiff(5)----
-args_5:  .EQUATE 10
+args_5:  .EQUATE 12
 arg1_5:  .EQUATE -4
 arg2_5:  .EQUATE -6
 arg3_5:  .EQUATE -8
 arg4_5:  .EQUATE -10
 arg5_5:  .EQUATE -12
+arg6_5:  .EQUATE -14
 
 ;Arguments de : Dechiff(6)--
-args_6:  .EQUATE 12
+args_6:  .EQUATE 14
 arg1_6:  .EQUATE -2
 arg2_6:  .EQUATE -4
 arg3_6:  .EQUATE -6
 arg4_6:  .EQUATE -8
 arg5_6:  .EQUATE -10
 arg6_6:  .EQUATE -12
+arg7_7:  .EQUATE -14
 
 ;Arguments de : AffMsg(7)---
 args_7:  .EQUATE 6
@@ -105,13 +107,13 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          CHARO   "\n",i
 ;------------------------------------------------------
          STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
-         STRO    m_coefA,d   ;r?cup?ration du coefficient a
+         STRO    m_coefA,d   ;recuperation du coefficient a
          DECI    arg1_1,s   
 
-         STRO    m_coefC, d  ;r?cup?ration du coefficient c
+         STRO    m_coefC, d  ;recuperation du coefficient c
          DECI    arg2_1,s
 
-         STRO    m_grain,d   ;r?cup?ration de la graine/terme
+         STRO    m_grain,d   ;recuperation de la graine/terme
          DECI    arg3_1,s
 
 
@@ -122,7 +124,7 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
  
          SUBSP   prms_1,i    ;allocation des arguments
          CALL    InitGen,i
-         ADDSP   prms_1,i    ;lib?ration arguments
+         ADDSP   prms_1,i    ;liberation arguments
          ;--------- Fin appel --------
 
 
@@ -280,7 +282,7 @@ rets_4:  .EQUATE 2           ;taille de la variable de retour
 ret1_4:  .EQUATE 16          ;pos. rel. de la var. de ret. dans la fonction
 
 Xor16:   STA     regA,s
-         STA     regX,s
+         STX     regX,s
          SUBSP   regs,i
          SUBSP   locs_4,i
          ;-------------------
@@ -311,41 +313,137 @@ Xor16:   STA     regA,s
 ;---------------------------------------------------------------------
 ;FONCTION: Chiff (prefix 5)
 
-; Arguments -----
+;Parametres de Chiff
 prms_5:  .EQUATE 10
-arg1_5:  .EQUATE -4
-arg2_5:  .EQUATE -6
-arg3_5:  .EQUATE -8
-arg4_5:  .EQUATE -10
-arg5_5:  .EQUATE -12
+prm1_5:  .EQUATE 278         ;addresse du message clair
+prm2_5:  .EQUATE 276         ;a
+prm3_5:  .EQUATE 274         ;c
+prm4_5:  .EQUATE 272         ;graine
+prm5_5:  .EQUATE 270         ;taille N de la cle
+prm6_5:  .EQUATE 268         ;addresse ou placer le message chiffre
 
-         LDX     0,i
-         STX     loc1_3,s
-         STX     loc2_3,s
+;Variables locales
+locs_5:  .EQUATE 260
+loc1_5:  .EQUATE 260         ;compteur general (longueur du message)
+loc2_5:  .EQUATE 258         ;compteur de la taille de la cle
+loc3_5:  .EQUATE 256         ;debut tab de la cle
 
-         LDX     loc1_3,s
-         LDBYTEA msgCla,sxf
+;Valeurs de retour
+rets_5:  .EQUATE 2
+res1_5:  .EQUATE 280         ;longueur du message
+
+
+
+Chiff:   STA     regA,s
+         STX     regX,s
+         SUBSP   regs,i
+         SUBSP   locs_5,i
+         ;------------------ 
+
+         ;--- Appel de InitGen (1) ---
+;placement des arguments dans la pile
+         LDA     prm2_5,s    ;InitGen( a, c, graine);
+         STA     arg1_1,s
+         LDA     prm3_5,s    
+         STA     arg2_1,s
+         LDA     prm4_5,s
+         STA     arg3_1,s  
+ 
+         SUBSP   prms_1,i    ;allocation des arguments
+         CALL    InitGen,i
+         ADDSP   prms_1,i    ;liberation arguments
+         ;--------- Fin appel --------
+
+
+         ;--- Appel de GenCle (3) ---
+;placement des arguments dans la pile
+         LDA     loc3_5,s    ;GenCle( *tab_cle, taille_N);
+         STA     arg1_3,s
+         LDA     prm5_5,s    
+         STA     arg2_3,s  
+ 
+         SUBSP   prms_1,i    ;allocation des arguments
+
+         CALL    InitGen,i
+
+         ADDSP   prms_1,i    ;liberation arguments
+         ;--------- Fin appel --------
+
+
+
+bou_chi: LDX     0,i
+         STX     loc1_5,s    ;int cmpt_gen, cmpt_cle =0;
+         STX     loc2_5,s
+
+         LDX     loc1_5,s    ;while (msgCla[cmpt_gen] != 'x\00')
+         LDBYTEA prm1_5,sxf
          ANDA    0x00FF,i
 
          BREQ    fin_m,i
 
-         LDX     loc2_3,s
-         CPX     prm2_3,i
-         LDX     loc2_3,s 
+         LDX     loc2_5,s    ;    if( cmpt_cle < taille_N ){
+         CPX     prm5_5,i
+         BREQ    fin_cle,i
 
-;Param?tres de Chiff
+deb_XOR: LDX     loc2_5,s 
+                             ;        msgChi[cmpt_gen] = msgCla[cmpt_gen] ^ tabcle[cmpt_cle];
+         ;----Appel Xor16 (4)------
+         LDA     prm1_5,
+         STA     arg1_4,s
+         STX     arg2_4,s
 
- 
+         SUBSP   rets_4,i
+         SUBSP   prms_4,i
+         CALL    Xor16,i
+         ADDSP   prms_4,i
+         ADDSP   rets_4,i
 
+         ;----Fin appel Xor16----
 
+         LDX     loc1_5,s
+         LDA     -2,s        ;retour de xor 
+         STBYTEA prm6_5,sxf
 
+         ADDX    1,i         ;        cmpt_gen ++;
+         STX     loc1_5,s
 
+         LDX     loc2_5,s    ;        cmpt_cle ++;
+         ADDX    1,i
+         STX     loc2_5,s    ;    
+
+         BR      bou_chi,i   ; 
+
+fin_cle: LDX     0,i         ;    }else{
+         STX     loc2_5,s    ;        cmpt_cle = 0; }
+         BR      deb_XOR,i
+
+fin_chi: LDA     loc1_5,s
+         STA     res1_5,s    ; return lng_msg = cmpt_gen;
+
+         ;-----------------
+         ADDSP   locs_5,i
+         ADDSP   regs,i
+         LDA     regA,s
+         LDX     regX,s
+         RET0
 
 ;----------------------------------------------------------------------
 ;FONCTION: Dechiff (prefix 6)
 
 ;Param?tres de Dechiff
  
+
+
+
+;--- Appel de InitGen (1) ---
+         STA     arg1_1,s    ;placement des arguments dans la pile
+         STA     arg2_1,s
+         STA     arg3_1,s  
+ 
+         SUBSP   prms_1,i    ;allocation des arguments
+         CALL    InitGen,i
+         ADDSP   prms_1,i    ;liberation arguments
+         ;--------- Fin appel --------
 
 
 ;---------------------------------------------------------------------
