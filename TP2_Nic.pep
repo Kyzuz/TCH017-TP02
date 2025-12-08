@@ -5,13 +5,13 @@
 
 ;-------------------------   ARGUMENTS   -----------------------------
 ;Nommage des variables
-;xxxx_X : X = préfixe de l'appelé, xxxx = type de variable
+;xxxx_X : X = prefixe de l'appele, xxxx = type de variable
 
 ;ARGUMENTS = Position relative des arguments DANS l'appelant
-;PARAMÈTES = Position relative des paramètres DANS l'appelé
+;PARAMETES = Position relative des parametres DANS l'appele
 
 ;Arguments de : InitGen(1)--
-args_1:  .EQUATE 6
+args_1: .EQUATE 6
 arg1_1: .EQUATE -2           ;pos. rel. de (a)
 arg2_1: .EQUATE -4           ;pos. rel. de (c)
 arg3_1: .EQUATE -6           ;pos. rel. de (terme)
@@ -57,12 +57,12 @@ arg3_7:  .EQUATE -6
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
-  
-tabTai:  .EQUATE 256         ;taille de tous les tableaux
+   
+tabTai:  .EQUATE 256         ;taille de chaque les tableaux
 strMax:  .EQUATE 255
-msgCla:  .EQUATE 0           ;début de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;début de la zone/tab du message chiffré
-msgDec:  .EQUATE 512         ;début de la zone/tab du message déchiffré
+msgCla:  .EQUATE 768         ;debut de la zone/tab du message clair
+msgChi:  .EQUATE 512         ;debut de la zone/tab du message chiffre
+msgDec:  .EQUATE 256         ;debut de la zone/tab du message dechiffre
 
 ;Variables globales
 coefA:   .WORD 0             ;Coefficient A
@@ -77,15 +77,18 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
 ;--------------------------------------------------------------------
-  
-tabTai:  .EQUATE 256         ;taille de tous les tableaux
-strMax:  .EQUATE 25
-msgCla:  .EQUATE 0           ;d?but de la zone/tab du message clair
-msgChi:  .EQUATE 256         ;d?but de la zone/tab du message chiffr?
-msgDec:  .EQUATE 512         ;d?but de la zone/tab du message d?chiffr?
+
+;---variables locales-----
 
 ;--------------------------------------------------------
-Main:    STRO    m_init,d    ;printf("Message original\n") 
+Main:    SUBSP   tabTai,i    ;allocation du tab du message clair
+         SUBSP   tabTai,i    ;allocation du tab du message chiffre
+         SUBSP   tabTai,i    ;allocation du tab du message dechiffre
+         ;---------------
+
+
+         ;---lecture du message original----
+         STRO    m_init,d    ;printf("Message original\n") 
          LDX     0,i         ;X = 0
 
 str_inpt:CHARI   -1,s
@@ -105,7 +108,8 @@ str_inpt:CHARI   -1,s
 e_strin: LDBYTEA 0,i         ;dernier octet = '\x00' 
          STBYTEA msgCla,sxf
          CHARO   "\n",i
-;------------------------------------------------------
+
+         ;----lecture caracteristique/graine/taille de la cle----------
          STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n") 
          STRO    m_coefA,d   ;recuperation du coefficient a
          DECI    arg1_1,s   
@@ -116,16 +120,21 @@ e_strin: LDBYTEA 0,i         ;dernier octet = '\x00'
          STRO    m_grain,d   ;recuperation de la graine/terme
          DECI    arg3_1,s
 
+         ;---fin lecture usager
 
-         ;--- Appel de InitGen (1) ---
-         STA     arg1_1,s    ;placement des arguments dans la pile
-         STA     arg2_1,s
-         STA     arg3_1,s  
- 
-         SUBSP   prms_1,i    ;allocation des arguments
-         CALL    InitGen,i
-         ADDSP   prms_1,i    ;liberation arguments
-         ;--------- Fin appel --------
+
+         ;----chiffrer le message---------
+         ;--- Appel de Chiff (6) ---
+;placement des arguments dans la pile
+         LDA     
+
+
+
+
+
+
+
+         
 
 
          BR      F_PEP8,i    ;Fin programme
@@ -401,7 +410,8 @@ deb_XOR: LDX     loc2_5,s
          ;----Fin appel Xor16----
 
          LDX     loc1_5,s
-         LDA     -2,s        ;retour de xor 
+         LDA     -2,s        ;retour de xor
+         ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
 
          ADDX    1,i         ;        cmpt_gen ++;
@@ -512,7 +522,8 @@ deb_XOR: LDX     loc2_6,s
          ;----Fin appel Xor16----
 
          LDX     loc1_6,s
-         LDA     -2,s        ;retour de xor 
+         LDA     -2,s        ;retour de xor
+         ANDA    0x00FF,i 
          STBYTEA prm7_6,sxf
 
          ADDX    1,i         ;        cmpt_gen ++;
