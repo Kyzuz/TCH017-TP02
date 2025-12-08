@@ -9,26 +9,31 @@
 ;ARGUMENTS = Position relative des arguments DANS l'appelant
 ;PARAMETES = Position relative des parametres DANS l'appelé
 
-;Arguments de : InitGen(1)--
+;Termes d'usage de : InitGen(1)--
 args_1: .EQUATE 6
 arg1_1: .EQUATE -2           ;pos. rel. de (a)
 arg2_1: .EQUATE -4           ;pos. rel. de (c)
 arg3_1: .EQUATE -6           ;pos. rel. de (terme)
 
-;Arguments de : GenVal(2)---               
+;Termes d'usage de : GenVal(2)--- 
+rets_2: .EQUATE 2           ;taille de la variable de retour             
 res1_2: .EQUATE -2           ;pos. rel. de val. ret.
 
-;Arguments de : GenCle(3)---
+
+;Termes d'usage de : GenCle(3)---
 args_3: .EQUATE 4            ;taille des arguments de GenCle
 arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clé 
 arg2_3: .EQUATE -4           ;pos. rel. de la taile de clé
 
-;Arguments de : Xor16(4)----
+;Termes d'usage de : Xor16(4)----
 args_4:  .EQUATE 4
 arg1_4:  .EQUATE -4
 arg2_4:  .EQUATE -6
 
-;Arguments de : Chiff(5)----
+rets_4:  .EQUATE 2           ;taille de la variable de retour
+res1_4:  .EQUATE -2          ;pos. rel. de val. ret.
+
+;Termes d'usage de : Chiff(5)----
 args_5:  .EQUATE 12
 arg1_5:  .EQUATE -4
 arg2_5:  .EQUATE -6
@@ -37,7 +42,10 @@ arg4_5:  .EQUATE -10
 arg5_5:  .EQUATE -12
 arg6_5:  .EQUATE -14
 
-;Arguments de : Dechiff(6)--
+rets_5:  .EQUATE 2           ;taille de la variable de retour
+res1_5:  .EQUATE -2          ;pos. rel. de val. ret.
+
+;Termes d'usage de : Dechiff(6)--
 args_6:  .EQUATE 14
 arg1_6:  .EQUATE -2
 arg2_6:  .EQUATE -4
@@ -47,16 +55,12 @@ arg5_6:  .EQUATE -10
 arg6_6:  .EQUATE -12
 arg7_7:  .EQUATE -14
 
-;Arguments de : AffMsg(7)---
+;Termes d'usage de : AffMsg(7)---
 args_7:  .EQUATE 6
 arg1_7:  .EQUATE -2
 arg2_7:  .EQUATE -4
 arg3_7:  .EQUATE -6
 
-;Res
-res1_2:  .EQUATE -2
-res1_4:  .EQUATE -2
-res1_5:  .EQUATE -2
 
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
@@ -180,7 +184,6 @@ loc1_2:  .EQUATE 0           ;var. locale (a) dans la fonction
 loc2_2:  .EQUATE 2           ;résultat de multiplication (a*Un)
 
 ;Variables de retour --------
-rets_2:  .EQUATE 2           ;taille de la variable de retour
 ret1_2:  .EQUATE 10          ;pos .rel. de la var. ret. DANS appelant
 
 GenVal:  STA     regA,s
@@ -229,7 +232,7 @@ prm1_3:  .EQUATE 14          ;adresse du début de la clé
 prm2_3:  .EQUATE 12          ;taille N de la clé
                              
 ;Variables locales -----------
-locs_3:  .EQUATE 4          ;taille des variables locales
+locs_3:  .EQUATE 4           ;taille des variables locales
 loc1_3:  .EQUATE 0           ;prochaine val. gen
 loc2_3:  .EQUATE 2           ;compteur clé
 
@@ -279,7 +282,6 @@ loc1_4:  .EQUATE 0           ;OR
 loc2_4:  .EQUATE 2           ;AND
 loc3_4:  .EQUATE 4           ;NOT
 
-rets_4:  .EQUATE 2           ;taille de la variable de retour
 ret1_4:  .EQUATE 16          ;pos. rel. de la var. de ret. dans la fonction
 
 Xor16:   STA     regA,s
@@ -327,7 +329,6 @@ loc2_5:  .EQUATE 258         ;compteur de la taille de la cle
 loc3_5:  .EQUATE 256         ;debut tab de la cle
 
 ;Valeurs de retour
-rets_5:  .EQUATE 2
 ret1_5:  .EQUATE 280         ;longueur du message
 
 
