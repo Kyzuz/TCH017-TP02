@@ -160,7 +160,7 @@ e_strin: LDBYTEA 0,i         ;msgCla[255] = '\x00'
 ;Récupère et place les caractéristiques du générateur sur la pile
 
 ;Paramètres -----------------
-prms_1:  .EQUATE 6
+prms_1:  .EQUATE 6           ;taille des paramètres/arguments
 prm1_1:  .EQUATE 12          ;a       
 prm2_1:  .EQUATE 10          ;c
 prm3_1:  .EQUATE 8           ;graine
@@ -282,16 +282,17 @@ eof_3:   ADDSP   locs_3,i    ;sortie GenVal
 ;FONCTION : Xor16 (prefix 4)  
 ;Effectue un XOR entre les deux valeurs 16 bits pass?es en param?tre
 ;et retourne le résultat. 
+
+;Paramètres ------------------
 prms_4:  .EQUATE 4           ;taille des parametres/arguments
 prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
-prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé) 
+prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé)
 
+;Variables locales ----------- 
 locs_4:  .EQUATE 6           ;taille des variables locales
 loc1_4:  .EQUATE 0           ;OR
 loc2_4:  .EQUATE 2           ;AND
 loc3_4:  .EQUATE 4           ;NOT
-
-ret1_4:  .EQUATE 16          ;pos. rel. de la var. de ret. dans la fonction
 
 Xor16:   STA     regA,s
          STX     regX,s
