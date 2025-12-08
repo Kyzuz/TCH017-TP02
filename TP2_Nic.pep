@@ -23,7 +23,7 @@ arg3_1: .EQUATE -6           ;pos. rel. de (terme)
 
 ;Termes d'usage de : GenVal(2)--- 
 rets_2: .EQUATE 2           ;taille de la variable de retour             
-res1_2: .EQUATE -2           ;pos. rel. de val. ret.
+res1_2: .EQUATE -2          ;pos. rel. de val. ret.
 
 
 ;Termes d'usage de : GenCle(3)---
@@ -53,6 +53,8 @@ arg6_5:  .EQUATE -14
 rets_5:  .EQUATE 2           ;taille de la variable de retour
 res1_5:  .EQUATE -2          ;pos. rel. de val. ret.
 
+size_5:  .EQUATE 280         ;taille de la pile de la fonction Chiff
+
 ;Termes d'usage de : Dechiff(6)--
 args_6:  .EQUATE 14
 arg1_6:  .EQUATE -2
@@ -63,11 +65,15 @@ arg5_6:  .EQUATE -10
 arg6_6:  .EQUATE -12
 arg7_7:  .EQUATE -14
 
+size_6:  .EQUATE 280         ;taille de la pile de la fonction Dechiff
+
 ;Termes d'usage de : AffMsg(7)---
 args_7:  .EQUATE 6
 arg1_7:  .EQUATE -2
 arg2_7:  .EQUATE -4
 arg3_7:  .EQUATE -6
+
+size_7:  .EQUATE 14          ;taille de la pile de la fonction AffMsg
 
 
 ;--------------------------------------------------------------------            
@@ -76,9 +82,9 @@ arg3_7:  .EQUATE -6
    
 tabTai:  .EQUATE 256         ;taille de chaque les tableaux
 strMax:  .EQUATE 255         ;taille max d'un message [0,255]
-msgCla:  .EQUATE 768         ;debut de la zone/tab du message clair
-msgChi:  .EQUATE 512         ;debut de la zone/tab du message chiffre
-msgDec:  .EQUATE 256         ;debut de la zone/tab du message dechiffre
+msgCla:  .EQUATE 518         ;debut de la zone/tab du message clair
+msgChi:  .EQUATE 262         ;debut de la zone/tab du message chiffre
+msgDec:  .EQUATE 6           ;debut de la zone/tab du message dechiffre
 
 ;Variables globales
 coefA:   .WORD 0             ;Coefficient A
@@ -95,11 +101,17 @@ regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 ;--------------------------------------------------------------------
 
 ;---variables locales-----
+locs_8:  .EQUATE 6
+loc1_8:  .EQUATE 0
+loc2_8:  .EQUATE 2
+loc3_8:  .EQUATE 4
+
 
 ;-------------------------------------------------------------------- 
 Main:    SUBSP   tabTai,i    ;allocation du tab du message clair
          SUBSP   tabTai,i    ;allocation du tab du message chiffre
          SUBSP   tabTai,i    ;allocation du tab du message dechiffre
+         SUBSP   locs_8,i    ;allocation variables locales du main
          ;---------------
 
 
