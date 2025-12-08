@@ -47,6 +47,8 @@ arg6_5:  .EQUATE -14
 rets_5:  .EQUATE 2           ;taille de la variable de retour
 res1_5:  .EQUATE -2          ;pos. rel. de val. ret.
 
+size_5:  .EQUATE 280         ;taille de la pile de la fonction Chiff
+
 ;Termes d'usage de : Dechiff(6)--
 args_6:  .EQUATE 14
 arg1_6:  .EQUATE -2
@@ -57,11 +59,15 @@ arg5_6:  .EQUATE -10
 arg6_6:  .EQUATE -12
 arg7_7:  .EQUATE -14
 
+size_6:  .EQUATE 280         ;taille de la pile de la fonction Dechiff
+
 ;Termes d'usage de : AffMsg(7)---
 args_7:  .EQUATE 6
 arg1_7:  .EQUATE -2
 arg2_7:  .EQUATE -4
 arg3_7:  .EQUATE -6
+
+size_7:  .EQUATE 14          ;taille de la pile de la fonction AffMsg
 
 
 ;--------------------------------------------------------------------            
