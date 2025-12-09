@@ -2,15 +2,22 @@
 ;----------------------    TCH017 - TP02    --------------------------
 ;--- Cryptage et décryptage avec les générateurs pseudo-aléatoires ---
 ;---------------------------------------------------------------------
+;       Écrit par : Jade Chenel, Madjda Brahmi, Nicolas Hamel
          BR      Main 
-;-------------------------   ARGUMENTS   -----------------------------
-;Nommage des variables
-;xxxx_X : X = prefixe de l'appele, xxxx = type de variable
+;----------------------   TERMES D'USAGES   --------------------------
+;Nommage des termes
+;xxxx_X : X = prefixe de la fonction, xxxx = type de variable
 
-;ARGUMENTS = Position relative des arguments DANS l'appelant
-;PARAMETES = Position relative des parametres DANS l'appelé
+;Dans cette section se trouve les positions relatives des termes
+;d'usage permettant de naviguer au travers du projet en fonction de 
+;chacune des fonctions ainsi que la taille de certaines piles. 
 
-
+;ARGUMENTS  = Position relative des arguments DANS l'appelant
+;PARAMÈTRES = Position relative des parametres DANS l'appelé
+;ARGS       = Position relative d'un argument DANS l'appelant
+;RETS       = Position relative de la zone de retour DANS l'appelé
+;RES        = Position relative de la zone de retour DANS l'appelant
+;SIZE       = Taille de la pile d'une fonction
 
 ;Termes d'usage de : InitGen(1)--
 args_1: .EQUATE 6            ;taille des arguments de InitGen
@@ -22,7 +29,6 @@ arg3_1: .EQUATE -6           ;pos. rel. de (terme)
 rets_2: .EQUATE 2           ;taille de la variable de retour             
 res1_2: .EQUATE -2          ;pos. rel. de val. ret.
 
-
 ;Termes d'usage de : GenCle(3)---
 args_3: .EQUATE 4            ;taille des arguments de GenCle
 arg1_3: .EQUATE -2           ;pos. rel. de l'adr. de clé 
@@ -31,22 +37,22 @@ arg2_3: .EQUATE -4           ;pos. rel. de la taile de clé
 size_3:  .EQUATE 14          ;taille de la pile de la fonction Gencle
 
 ;Termes d'usage de : Xor16(4)----
-args_4:  .EQUATE 4
-arg1_4:  .EQUATE -4
-arg2_4:  .EQUATE -6
+args_4:  .EQUATE 4           ;taille des arguments de Xor16
+arg1_4:  .EQUATE -4          ;pos. rel. de la première valeur du XOR (a)
+arg2_4:  .EQUATE -6          ;pos. rel. de la deuxième valeur du XOR (b)
 
 rets_4:  .EQUATE 2           ;taille de la variable de retour
 ret1_4:  .EQUATE 16          ;Emplacement de la val de ret. dans XOR
 res1_4:  .EQUATE -2          ;pos. rel. de val. ret.
 
 ;Termes d'usage de : Chiff(5)----
-args_5:  .EQUATE 12
+args_5:  .EQUATE 12          ;taille des arguments de Xor16
 arg1_5:  .EQUATE -4          ;addresse du message clair
 arg2_5:  .EQUATE -6          ;a
 arg3_5:  .EQUATE -8          ;c
 arg4_5:  .EQUATE -10         ;graine
 arg5_5:  .EQUATE -12         ;taille de la cle
-arg6_5:  .EQUATE -14
+arg6_5:  .EQUATE -14         ;adresse du message chiffé
 
 rets_5:  .EQUATE 2           ;taille de la variable de retour
 res1_5:  .EQUATE -2          ;pos. rel. de val. ret.
@@ -54,25 +60,24 @@ res1_5:  .EQUATE -2          ;pos. rel. de val. ret.
 size_5:  .EQUATE 280         ;taille de la pile de la fonction Chiff
 
 ;Termes d'usage de : Dechiff(6)--
-args_6:  .EQUATE 14
-arg1_6:  .EQUATE -2
-arg2_6:  .EQUATE -4
-arg3_6:  .EQUATE -6
-arg4_6:  .EQUATE -8
-arg5_6:  .EQUATE -10
-arg6_6:  .EQUATE -12
-arg7_7:  .EQUATE -14
+args_6:  .EQUATE 14          ;taille des arguments de Dechiff
+arg1_6:  .EQUATE -2          ;adresse du message chiffré
+arg2_6:  .EQUATE -4          ;taille du message chiffré
+arg3_6:  .EQUATE -6          ;c
+arg4_6:  .EQUATE -8          ;c
+arg5_6:  .EQUATE -10         ;graine
+arg6_6:  .EQUATE -12         ;taille de la clé
+arg7_7:  .EQUATE -14         ;adresse du début du message chiffré
 
 size_6:  .EQUATE 280         ;taille de la pile de la fonction Dechiff
 
 ;Termes d'usage de : AffMsg(7)---
-args_7:  .EQUATE 6
-arg1_7:  .EQUATE -2
-arg2_7:  .EQUATE -4
-arg3_7:  .EQUATE -6
+args_7:  .EQUATE 6           ;taille des arguments de AffMsg
+arg1_7:  .EQUATE -2          ;adresse du début du message
+arg2_7:  .EQUATE -4          ;taille du message
+arg3_7:  .EQUATE -6          ;type d'affichage 
 
 size_7:  .EQUATE 14          ;taille de la pile de la fonction AffMsg
-
 
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
@@ -94,7 +99,7 @@ regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
 regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
 ;Variables locales ----------
-locs_8:  .EQUATE 8
+locs_8:  .EQUATE 8           ;taille des variables locales du main
 loc1_8:  .EQUATE 0           ;a         
 loc2_8:  .EQUATE 2           ;c
 loc3_8:  .EQUATE 4           ;graine
@@ -602,23 +607,24 @@ fin_dec: ADDSP   locs_6,i
 
 ;---------------------------------------------------------------------
 ;FONCTION: AffMsg (prefix 7)
-;zone parametres
-prms_7:  .EQUATE 6
-;ZONE variable locale
-locs_7:  .EQUATE 2
+;Affiche le contenu d'un tableau mémoire (caractères ou code ASCII)
 
-;parametres/variables
+;Paramètres ------------------
+prms_7:  .EQUATE 6           ;taille des paramètres de AffMsg
 prm1_7:  .EQUATE 12          ; addresse du tab
 prm2_7:  .EQUATE 10          ; taille du tab
 prm3_7:  .EQUATE 8           ; affichage ASCII ou caracteres(-1)
+
+;Variable locale -------------
+locs_7:  .EQUATE 2           ;taille de la variable locale
 loc1_7:  .EQUATE 0           ; compteur
 
 AffMsg:  STA     regA,s
          STX     regX,s
          SUBSP   regs,i
          SUBSP   locs_7,i
+         ;---------------
 
-;----------------------------------
          LDA     prm3_7,s    ;affichage caractere ou ASCII
          CPA     -1,i        ;if( aff != -1){
          BREQ    aff_car,i
@@ -638,21 +644,16 @@ affASCII:LDX     loc1_7,s    ;    for(int i=0; i< taille_msg; i++){
          ADDX    1,i
          STX     loc1_7,s
          BR      affASCII,i  ;    }
-                    
 
 aff_car:STRO     prm1_7,sf   ;else{ 
                              ;    printf("%s",str_msg)}
 f_AffMsg:CHARO   '\n',i      ;printf("\n")
-
-;-----------------------------------
-
+         ;---------------
          ADDSP   locs_7,i
          ADDSP   regs,i
          LDX     regX,s
          LDA     regA,s
-
-         RET0
-
+         RET0                ;return
 ;---------------------------------------------------------------------
 ;Message a  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
