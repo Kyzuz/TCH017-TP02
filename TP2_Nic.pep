@@ -63,11 +63,11 @@ size_5:  .EQUATE 280         ;taille de la pile de la fonction Chiff
 args_6:  .EQUATE 14          ;taille des arguments de Dechiff
 arg1_6:  .EQUATE -2          ;adresse du message chiffré
 arg2_6:  .EQUATE -4          ;taille du message chiffré
-arg3_6:  .EQUATE -6          ;c
+arg3_6:  .EQUATE -6          ;a
 arg4_6:  .EQUATE -8          ;c
 arg5_6:  .EQUATE -10         ;graine
 arg6_6:  .EQUATE -12         ;taille de la clé
-arg7_7:  .EQUATE -14         ;adresse du début du message chiffré
+arg7_6:  .EQUATE -14         ;adresse du début du message dechiffré
 
 size_6:  .EQUATE 280         ;taille de la pile de la fonction Dechiff
 
@@ -191,7 +191,8 @@ e_strin: LDA 0,i             ;msgCla[255] = '\x00'
          ;--- Appel de AffMsg (7) ---
 
          STRO    m_chi,d
-;placement des arguments dans la pile
+
+         ;placement des arguments dans la pile
          MOVSPA              ;Calcul de l'adresse réelle pour AffMsg
          ADDA    msgChi,i
          STA     arg1_7,s
@@ -208,6 +209,57 @@ e_strin: LDA 0,i             ;msgCla[255] = '\x00'
          ;-----fin appel AffMsg---
 
 
+         ;-----dechiffrer le message-----
+         ;---Appel de Dechiff (6)-----
+         MOVSPA              ;A=adresse de la pile
+         ADDA    msgChi,i    ;A= adresse reelle du pointeur
+         STA     arg1_6,s    ;on passe le pointeur
+
+         LDA     loc5_8,s    ;taille du message
+         STA     arg2_6,s
+         
+         LDA     loc1_8,s    ;a
+         STA     arg3_6,s
+
+         LDA     loc2_8,s    ;c
+         STA     arg4_6,s    
+
+         LDA     loc3_8,s    ;graine
+         STA     arg5_6,s
+
+         LDA     loc4_8,s    ;taille cle
+         STA     arg6_6,s
+
+         MOVSPA              ;A=SP
+         ADDA    msgDec,i    ;adresse reelle du pointeur du debut du tab
+         STA     arg7_6,s 
+
+         
+         SUBSP   prms_6,i
+         CALL    Dechiff,i
+         ADDSP   prms_6,i
+         ;---fin appel Dechiff-------
+
+          ;afficher message en caracteres
+         ;--- Appel de AffMsg (7) ---
+
+         STRO    m_dchi,d
+
+         ;placement des arguments dans la pile
+         MOVSPA              ;Calcul de l'adresse réelle pour AffMsg
+         ADDA    msgDec,i
+         STA     arg1_7,s
+
+         LDA     loc5_8,s    ;taille du message
+         STA     arg2_7,s
+
+         LDA     -1,i
+         STA     arg3_7,s
+
+         SUBSP   prms_7,i
+         CALL    AffMsg,i
+         ADDSP   prms_7,i
+         ;-----fin appel AffMsg---
          
 
 
@@ -280,7 +332,8 @@ whi_2:   LDA     loc1_2,s    ;while cpt > 0 {
          BR      whi_2       
         
 eow_2:   LDA     loc2_2,s    ;a*Un += c
-         ADDA    coefC,d 
+         ADDA    coefC,d
+         STA     terme,d 
          STA     ret1_2,s    ;valeur de retour = a*Un + c
          ;-------------------
          ADDSP   locs_2,i
