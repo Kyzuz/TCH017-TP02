@@ -10,8 +10,6 @@
 ;ARGUMENTS = Position relative des arguments DANS l'appelant
 ;PARAMETES = Position relative des parametres DANS l'appelé
 
-
-
 ;Termes d'usage de : InitGen(1)--
 args_1: .EQUATE 6            ;taille des arguments de InitGen
 arg1_1: .EQUATE -2           ;pos. rel. de (a)
@@ -109,19 +107,19 @@ str_inpt:CHARI   -1,s        ;for (int i=0;i<strMax, i++) {
          CPX     strMax,i    ;    elseif (X == 256 == strMax)
          BREQ    e_strin     ;        goto e_strin
          
-         STBYTEA msgCla,sxf  ;    else (msgCla[X] = CHARI)
+         STBYTEA msgCla,sx   ;    else (msgCla[X] = CHARI)
          ADDX    1,i         ;    X++
          BR      str_inpt,i  ;}
 
 e_strin: LDA 0,i         ;msgCla[255] = '\x00' 
-         STBYTEA msgCla,sxf
+         STBYTEA msgCla,sx
          CHARO   '\n',i
 
          ;--- Lecture caracteristique/graine/taille de la cle -------
          STRO    m_carGen,d  ;printf("Caractéristiques du générateur\n")
          CHARO   '\n',i
          STRO    m_coefA,d   ;recuperation du coefficient a
-         DECI    loc1_8,s   
+         DECI    loc1_8,s  
 
          STRO    m_coefC, d  ;recuperation du coefficient c
          DECI    loc2_8,s
@@ -136,10 +134,14 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          
          ;----chiffrer le message---------
          ;--- Appel de Chiff (5) ---
-;placement des arguments dans la pile
-         LDA     msgCla,i
-         ADDA    size_5,i
-         STA     arg1_5,s
+
+         MOVSPA              ;A = adresse de la pile     
+         ADDA    msgCla,i    ;A = adresse réelle du pointeur
+         STA     arg1_5,s    ;on passe le pointeur
+
+         ;LDA     msgCla,i
+         ;ADDA    size_5,i
+         ;STA     arg1_5,s
 
          LDA     loc1_8,s    ;a
          STA     arg2_5,s
@@ -153,9 +155,13 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          LDA     loc4_8,s    ;taille cle
          STA     arg5_5,s
 
-         LDA     msgChi,i    ;adr. message chiffré
-         ADDA    size_5,i
+         MOVSPA              ;A = SP
+         ADDA    msgChi,i    ;A = adresse réelle destination
          STA     arg6_5,s
+
+         ;LDA     msgChi,i    ;adr. message chiffré
+         ;ADDA    size_5,i
+         ;STA     arg6_5,s
 
          SUBSP   rets_5,i
          SUBSP   prms_5,i
@@ -172,9 +178,13 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
 
          STRO    m_chi,d
 
-         LDA     msgChi,i
-         ADDA    size_7,i
+         MOVSPA              ;Calcul de l'adresse réelle pour AffMsg
+         ADDA    msgChi,i
          STA     arg1_7,s
+
+         ;LDA     msgChi,i
+         ;ADDA    size_7,i
+         ;STA     arg1_7,s
 
          LDA     loc5_8,s    ;taille du message
          STA     arg2_7,s
@@ -199,9 +209,9 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
 
 ;Paramètres -----------------
 prms_1:  .EQUATE 6           ;taille des paramètres/arguments
-prm1_1:  .EQUATE 12          ;a       
-prm2_1:  .EQUATE 10          ;c
-prm3_1:  .EQUATE 8           ;graine
+prm1_1:  .EQUATE 10          ;a       
+prm2_1:  .EQUATE 8          ;c
+prm3_1:  .EQUATE 6           ;graine
 
 InitGen: STA     regA,s      ;Allocation registre
          STX     regX,s
@@ -261,6 +271,7 @@ whi_2:   LDA     loc1_2,s    ;while cpt > 0 {
         
 eow_2:   LDA     loc2_2,s    ;a*Un += c
          ADDA    coefC,d 
+         STA     terme,d
          STA     ret1_2,s    ;valeur de retour = a*Un + c
          ;-------------------
          ADDSP   locs_2,i
@@ -275,8 +286,8 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 
 ;Paramètres ------------------
 prms_3:  .EQUATE 4           ;taille des paramètres
-prm1_3:  .EQUATE 14          ;adresse du début de la clé
-prm2_3:  .EQUATE 12          ;taille N de la clé
+prm1_3:  .EQUATE 12          ;adresse du début de la clé
+prm2_3:  .EQUATE 10          ;taille N de la clé
                              
 ;Variables locales -----------
 locs_3:  .EQUATE 4           ;taille des variables locales
@@ -300,8 +311,11 @@ for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) {
          ;--------------------
          CALL    GenVal,i
 
-         LDA     loc1_3,s    ;récupère la valeur généré
-         STA     prm1_3,sxf  ;clé[x] = valeur généré
+         LDA     0,s         ;-------<Ajout>
+         STBYTEA prm1_3,sxf
+
+         ;LDA     loc1_3,s    ;récupère la valeur généré
+         ;STA     prm1_3,sxf  ;clé[x] = valeur généré
          ;--------------------
          ADDSP   rets_2,i
          ;-------------------- Fin GenVal ---------------------------
@@ -323,8 +337,8 @@ eof_3:   ADDSP   locs_3,i    ;sortie GenVal
 
 ;Paramètres ------------------
 prms_4:  .EQUATE 4           ;taille des parametres/arguments
-prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
-prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé)
+prm1_4:  .EQUATE 14          ;pos. rel. de la première valeur (a=msg clair)     
+prm2_4:  .EQUATE 12          ;pos. rel. de la deuxième valeur (b=clé)
 
 ;Variables locales ----------- 
 locs_4:  .EQUATE 6           ;taille des variables locales
@@ -413,6 +427,8 @@ Chiff:   STA     regA,s
          SUBSP   prms_3,i     ;allocation des arguments
          CALL    GenCle,i
          ADDSP   prms_3,i     ;liberation arguments
+
+         ;DECO    terme,d
          ;--------- Fin appel --------
 
          LDX     0,i
@@ -431,7 +447,7 @@ bou_chi: LDX     loc1_5,s    ;while (msgCla[cmpt_gen] != 'x\00')
 deb_XOR: LDX     loc2_5,s 
                              
          ;----Appel Xor16 (4)------ 
-         STA     arg1_4,s
+         ;STA     arg1_4,s
          LDBYTEA loc3_5,sx   ;---<MODE SX>----
          ANDA    0x00ff,i
          STA     arg2_4,s
@@ -536,7 +552,7 @@ m_coefA: .ASCII  "Coeff. a : \x00"
 m_coefC: .ASCII  "Coeff. c : \x00"
 m_grain: .ASCII  "Graine : \x00"
 m_tCle:  .ASCII  "Taille de la cle : \x00"
-m_chi:   .ASCII  "Message chiffre : \x00"
+m_chi:   .ASCII  "\nMessage chiffre : \x00"
 m_dchi:  .ASCII  "Message dechiffre : \x00"
 
 F_PEP8:  STOP
