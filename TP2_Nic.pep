@@ -1,3 +1,4 @@
+;---------------------------------------------------------------------
 ;----------------------    TCH017 - TP02    --------------------------
 ;--- Cryptage et décryptage avec les générateurs pseudo-aléatoires ---
 ;---------------------------------------------------------------------
@@ -9,8 +10,10 @@
 ;ARGUMENTS = Position relative des arguments DANS l'appelant
 ;PARAMETES = Position relative des parametres DANS l'appelé
 
+
+
 ;Termes d'usage de : InitGen(1)--
-args_1: .EQUATE 6
+args_1: .EQUATE 6            ;taille des arguments de InitGen
 arg1_1: .EQUATE -2           ;pos. rel. de (a)
 arg2_1: .EQUATE -4           ;pos. rel. de (c)
 arg3_1: .EQUATE -6           ;pos. rel. de (terme)
@@ -33,6 +36,7 @@ arg1_4:  .EQUATE -4
 arg2_4:  .EQUATE -6
 
 rets_4:  .EQUATE 2           ;taille de la variable de retour
+ret1_4:  .EQUATE 16          ;Emplacement de la val de ret. dans XOR
 res1_4:  .EQUATE -2          ;pos. rel. de val. ret.
 
 ;Termes d'usage de : Chiff(5)----
@@ -72,8 +76,7 @@ size_7:  .EQUATE 14          ;taille de la pile de la fonction AffMsg
 
 ;--------------------------------------------------------------------            
 ;FONCTION : Main (prefixe 8)
-;--------------------------------------------------------------------
-   
+;--------------------------------------------------------------------   
 tabTai:  .EQUATE 256         ;taille de chaque les tableaux
 strMax:  .EQUATE 255         ;taille max d'un message [0,255]
 msgCla:  .EQUATE 518         ;debut de la zone/tab du message clair
@@ -361,7 +364,7 @@ Xor16:   STA     regA,s
 
          LDA     loc3_4,s    ; return XOR = NOT && OR
          ANDA    loc1_4,s   
-         STA     ret1_4,s
+         STA     ret1_4,s 
          ;-------------------
          ADDSP   locs_4,i
          ADDSP   regs,i
