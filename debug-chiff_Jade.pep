@@ -17,8 +17,11 @@ arg2_1: .EQUATE -4           ;pos. rel. de (c)
 arg3_1: .EQUATE -6           ;pos. rel. de (terme)
 
 ;Termes d'usage de : GenVal(2)--- 
-rets_2: .EQUATE 1           ;taille de la variable de retour             
-res1_2: .EQUATE -1          ;pos. rel. de val. ret.
+;rets_2: .EQUATE 1           ;taille de la variable de retour             
+;res1_2: .EQUATE -1          ;pos. rel. de val. ret.
+
+rets_2: .EQUATE 2           ;taille de la variable de retour             
+res1_2: .EQUATE -2          ;pos. rel. de val. ret.
 
 
 ;Termes d'usage de : GenCle(3)---
@@ -197,6 +200,30 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          ADDSP   prms_7,i
          ;-----fin appel AffMsg---
 
+ ;afficher message en code ASCII
+         ;--- Appel de AffMsg (7) ---
+
+         STRO    m_chi,d
+
+         MOVSPA              ;Calcul de l'adresse réelle pour AffMsg
+         ADDA    msgCla,i
+         STA     arg1_7,s
+
+         ;LDA     msgChi,i
+         ;ADDA    size_7,i
+         ;STA     arg1_7,s
+
+         LDA     loc5_8,s    ;taille du message
+         STA     arg2_7,s
+
+         LDA     -1,i
+         STA     arg3_7,s
+
+         SUBSP   prms_7,i
+         CALL    AffMsg,i
+         ADDSP   prms_7,i
+         ;-----fin appel AffMsg---
+
 
          
 
@@ -273,6 +300,9 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
          ADDA    coefC,d 
          STA     terme,d
          STA     ret1_2,s    ;valeur de retour = a*Un + c
+
+         ;DECO    ret1_2,s
+         ;CHARO   ' ',i
          ;-------------------
          ADDSP   locs_2,i
          ADDSP   regs,i 
@@ -311,10 +341,11 @@ for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) {
          ;--------------------
          CALL    GenVal,i
 
-         LDA     loc1_3,s         ;-------<Ajout>
-         ANDA    0x00ff,i
+         ;LDA     loc1_3,s         ;-------<Ajout>
+         ;LDA     res1_2,s
+         ;ANDA    0x00ff,i
          ;STBYTEA prm1_3,sxf
-         STBYTEA prm1_3,sx
+         ;STBYTEA prm1_3,sx
          
          ;STA     -20,s
          ;DECO    -20,s
@@ -325,8 +356,23 @@ for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) {
          ;--------------------
          ADDSP   rets_2,i
          ;-------------------- Fin GenVal ---------------------------
-         LDX     loc2_3,s    ;compteur clé++
-         ADDX    1,i
+             
+         LDA     res1_2,s
+         ANDA    0x00ff,i
+         STA     loc1_3,s
+
+         LDA     loc1_3,s         ;-------<Ajout>
+         ;LDA     res1_2,s
+         ANDA    0x00ff,i
+         STBYTEA prm1_3,sxf
+         ;STBYTEA prm1_3,sx  
+
+         ;STA     -20,s
+         ;DECO    -20,s
+         ;CHARO   ' ',i
+       
+         LDX     loc2_3,s
+         ADDX    1,i         ;compteur clé++
          STX     loc2_3,s
 
          BR      for_3,i
@@ -422,14 +468,14 @@ Chiff:   STA     regA,s
          ;--- Appel de GenCle (3) ---
          MOVSPA              ;Copie la valeur du registre SP dans A
          ADDA    loc3_5,i    ;Ajoute le décalage de la variable locale
-         ;ADDA    4,i
          STA     arg1_3,s
 
          ;LDA     loc3_5,s    ;GenCle( *tab_cle, taille_N);
          ;ADDA    size_3,i    ;ajuste adresse du tableau pour Gencle
          
          LDA     prm5_5,s     ;récupère la taile de clé  
-         STA     arg2_3,s  
+         STA     arg2_3,s
+         
  
          SUBSP   prms_3,i     ;allocation des arguments
          CALL    GenCle,i
@@ -458,14 +504,16 @@ deb_XOR: LDX     loc2_5,s
          LDBYTEA loc3_5,sx   ;---<MODE SX>----
          ANDA    0x00ff,i
          STA     arg2_4,s
-         STA     -20,s
-         DECO    -20,s
-         CHARO   ' ',i
+
+         
          
          LDX     loc1_5,s    ;chargement message
          LDBYTEA prm1_5,sxf
          ANDA    0x00ff,i
          STA     arg1_4,s    ;message dans arg1
+
+         DECO    arg1_4,s
+         CHARO   ' ',i
          
 
          SUBSP   rets_4,i
@@ -479,9 +527,9 @@ deb_XOR: LDX     loc2_5,s
          LDA     res1_4,s        ;retour de xor 
          ANDA    0x00FF,i 
          STBYTEA prm6_5,sxf
-         STA     -2,s
-         DECO    -2,s
-         CHARO   ' ',i
+         ;STA     -2,s
+         ;DECO    -2,s
+         ;CHARO   ' ',i
 
          ADDX    1,i         ;        cmpt_gen ++;
          STX     loc1_5,s
