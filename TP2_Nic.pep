@@ -99,11 +99,7 @@ regA:    .EQUATE -2          ;pos. rel. du registre dans la fonction
 regX:    .EQUATE -4          ;pos. rel. du registre dans la fonction
 
 ;Variables locales ----------
-<<<<<<< HEAD
-locs_8:  .EQUATE 10
-=======
-locs_8:  .EQUATE 8           ;taille des variables locales du main
->>>>>>> 8f333d13d5f3eb3cd1922c2691f30b9276da87ff
+locs_8:  .EQUATE 10           ;taille des variables locales du main
 loc1_8:  .EQUATE 0           ;a         
 loc2_8:  .EQUATE 2           ;c
 loc3_8:  .EQUATE 4           ;graine
@@ -132,12 +128,12 @@ str_inpt:CHARI   -1,s        ;for (int i=0;i<strMax, i++) {
          CPX     strMax,i    ;    elseif (X == 256 == strMax)
          BREQ    e_strin     ;        goto e_strin
          
-         STBYTEA msgCla,sxf  ;    else (msgCla[X] = CHARI)
+         STBYTEA msgCla,sx   ;    else (msgCla[X] = CHARI)
          ADDX    1,i         ;    X++
          BR      str_inpt,i  ;}
 
-e_strin: LDA 0,i         ;msgCla[255] = '\x00' 
-         STBYTEA msgCla,sxf
+e_strin: LDA 0,i             ;msgCla[255] = '\x00' 
+         STBYTEA msgCla,sx
          CHARO   '\n',i
 
          ;--- Lecture caracteristique/graine/taille de la cle -------
@@ -160,24 +156,24 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          ;----chiffrer le message---------
          ;--- Appel de Chiff (5) ---
 ;placement des arguments dans la pile
-         LDA     msgCla,i
-         ADDA    size_5,i
-         STA     arg1_5,s
+         MOVSPA              ;A = adresse de la pile     
+         ADDA    msgCla,i    ;A = adresse réelle du pointeur
+         STA     arg1_5,s    ;on passe le pointeur
 
-         LDA     loc1_8,s
+         LDA     loc1_8,s    ;a
          STA     arg2_5,s
 
-         LDA     loc2_8,s
+         LDA     loc2_8,s    ;c
          STA     arg3_5,s
 
-         LDA     loc3_8,s
+         LDA     loc3_8,s    ;graine
          STA     arg4_5,s
 
-         LDA     loc4_8,s
+         LDA     loc4_8,s    ;taille cle
          STA     arg5_5,s
 
-         LDA     msgChi,i
-         ADDA    size_5,i
+         MOVSPA              ;A = SP
+         ADDA    msgChi,i    ;A = adresse réelle destination
          STA     arg6_5,s
 
 
@@ -188,22 +184,22 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          ADDSP   rets_5,i
          ;---fin appel Chiff-----
 
-         LDA     res1_5,s
+         LDA     res1_5,s    ;récupère la longueur du message
          STA     loc5_8,s
-
-
 
          ;afficher message en code ASCII
          ;--- Appel de AffMsg (7) ---
+
+         STRO    m_chi,d
 ;placement des arguments dans la pile
-         LDA     msgChi,i
-         ADDA    size_7,i
+         MOVSPA              ;Calcul de l'adresse réelle pour AffMsg
+         ADDA    msgChi,i
          STA     arg1_7,s
 
-         LDA     loc5_8,s
+         LDA     loc5_8,s    ;taille du message
          STA     arg2_7,s
 
-         LDA     -1,i
+         LDA     0,i
          STA     arg3_7,s
 
          SUBSP   prms_7,i
@@ -223,9 +219,9 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
 
 ;Paramètres -----------------
 prms_1:  .EQUATE 6           ;taille des paramètres/arguments
-prm1_1:  .EQUATE 12          ;a       
-prm2_1:  .EQUATE 10          ;c
-prm3_1:  .EQUATE 8           ;graine
+prm1_1:  .EQUATE 10          ;a       
+prm2_1:  .EQUATE 8           ;c
+prm3_1:  .EQUATE 6           ;graine
 
 InitGen: STA     regA,s      ;Allocation registre
          STX     regX,s
@@ -299,8 +295,8 @@ eow_2:   LDA     loc2_2,s    ;a*Un += c
 
 ;Paramètres ------------------
 prms_3:  .EQUATE 4           ;taille des paramètres
-prm1_3:  .EQUATE 14          ;adresse du début de la clé
-prm2_3:  .EQUATE 12          ;taille N de la clé
+prm1_3:  .EQUATE 12          ;adresse du début de la clé
+prm2_3:  .EQUATE 10          ;taille N de la clé
                              
 ;Variables locales -----------
 locs_3:  .EQUATE 4           ;taille des variables locales
@@ -316,7 +312,7 @@ GenCle:  STA     regA,s      ;préparation de GenVal
          STX     loc2_3,s    ;compteur général = 0
          
 for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) { 
-         CPX     prm2_3,i
+         CPX     prm2_3,s
          BREQ    eof_3,i          ;goto 3_eof
  
          ;------------------- Call GenVal ---------------------------
@@ -324,11 +320,16 @@ for_3:   LDX     loc2_3,s    ;while (compteur clé < taile clé) {
          ;--------------------
          CALL    GenVal,i
 
-         LDA     loc1_3,s    ;récupère la valeur généré
-         STA     prm1_3,sxf  ;clé[x] = valeur généré
          ;--------------------
          ADDSP   rets_2,i
          ;-------------------- Fin GenVal ---------------------------
+         LDA     res1_2,s    ;stocke le retour de GenVal dans valeur genere
+         STA     loc1_3,s
+
+         LDA     loc1_3,s    ;récupère la valeur généré
+         ANDA    0x00FF,i
+         STBYTEA prm1_3,sxf  ;clé[x] = valeur généré
+
          LDX     loc2_3,s    ;compteur clé++
          ADDX    1,i
          STX     loc2_3,s
@@ -347,8 +348,8 @@ eof_3:   ADDSP   locs_3,i    ;sortie GenVal
 
 ;Paramètres ------------------
 prms_4:  .EQUATE 4           ;taille des parametres/arguments
-prm1_4:  .EQUATE 12          ;pos. rel. de la première valeur (a=msg clair)     
-prm2_4:  .EQUATE 14          ;pos. rel. de la deuxième valeur (b=clé)
+prm1_4:  .EQUATE 14          ;pos. rel. de la première valeur (a=msg clair)     
+prm2_4:  .EQUATE 12          ;pos. rel. de la deuxième valeur (b=clé)
 
 ;Variables locales ----------- 
 locs_4:  .EQUATE 6           ;taille des variables locales
@@ -426,16 +427,15 @@ Chiff:   STA     regA,s
 
          ;--- Appel de GenCle (3) ---
 ;placement des arguments dans la pile
-         LDA     loc3_5,s    ;GenCle( *tab_cle, taille_N);
-         ADDA    size_3,i    ;ajuste adresse du tableau pour Gencle
+         MOVSPA              ;Copie la valeur du registre SP dans A
+         ADDA    loc3_5,i    ;Ajoute le décalage de la variable locale
          STA     arg1_3,s
+
          LDA     prm5_5,s    
          STA     arg2_3,s  
  
          SUBSP   prms_3,i    ;allocation des arguments
-
-         CALL    InitGen,i
-
+         CALL    GenCle,i
          ADDSP   prms_3,i    ;liberation arguments
          ;--------- Fin appel --------
 
@@ -450,16 +450,21 @@ bou_chi: LDX     loc1_5,s    ;while (msgCla[cmpt_gen] != 'x\00')
          BREQ    fin_chi,i
 
          LDX     loc2_5,s    ;    if( cmpt_cle < taille_N ){
-         CPX     prm5_5,i
+         CPX     prm5_5,s
          BREQ    fin_cle,i
 
 deb_XOR: LDX     loc2_5,s 
-                             ;        msgChi[cmpt_gen] = msgCla[cmpt_gen] ^ tabcle[cmpt_cle];
+                             ;        msgChi/msgDec[cmpt_gen] = msgCla/msgChi[cmpt_gen] ^ tabcle[cmpt_cle];
          ;----Appel Xor16 (4)------ 
-         STA     arg1_4,s
-         LDBYTEA loc3_5,sxf
+         
+         LDBYTEA loc3_5,sx   ;chargement b ( tabcle[cmpt_cle] )
          ANDA    0x00ff,i
-         STA     arg2_4,s
+         STA     arg2_4,s    ;b dans arg2
+
+         LDX     loc1_5,s    ;chargement a ( msg[cmptgen] )
+         LDBYTEA prm1_5,sxf
+         ANDA    0x00ff,i
+         STA     arg1_4,s    ;a dans arg1
 
          SUBSP   rets_4,i
          SUBSP   prms_4,i
@@ -500,19 +505,19 @@ fin_chi: LDA     loc1_5,s
 
 ;Parametres de Dechiff
 prms_6:  .EQUATE 14
-prm1_6:  .EQUATE 280         ;addresse du message chiffre
-prm2_6:  .EQUATE 278         ;taille du message chiffre
-prm3_6:  .EQUATE 276         ;a
-prm4_6:  .EQUATE 274         ;c
-prm5_6:  .EQUATE 272         ;graine
-prm6_6:  .EQUATE 270         ;taille N de la cle
-prm7_6:  .EQUATE 268         ;addresse du message dechiffre
+prm1_6:  .EQUATE 278         ;addresse du message chiffre
+prm2_6:  .EQUATE 276         ;taille du message chiffre
+prm3_6:  .EQUATE 274         ;a
+prm4_6:  .EQUATE 272         ;c
+prm5_6:  .EQUATE 270         ;graine
+prm6_6:  .EQUATE 268         ;taille N de la cle
+prm7_6:  .EQUATE 266         ;addresse du message dechiffre
 
 ;Variables locales
 locs_6:  .EQUATE 260
-loc1_6:  .EQUATE 260         ;compteur general (longueur du message)
-loc2_6:  .EQUATE 258         ;compteur de la taille de la cle
-loc3_6:  .EQUATE 256         ;debut tab de la cle
+loc1_6:  .EQUATE 258         ;compteur general (longueur du message)
+loc2_6:  .EQUATE 256         ;compteur de la taille de la cle
+loc3_6:  .EQUATE 0           ;debut tab de la cle
 
 
 Dechiff: STA     regA,s
@@ -538,39 +543,44 @@ Dechiff: STA     regA,s
 
          ;--- Appel de GenCle (3) ---
 ;placement des arguments dans la pile
-         LDA     loc3_6,s    ;GenCle( *tab_cle, taille_N);
-         ADDA    size_3,i    ;ajuste adresse du tableau pour Gencle
+         MOVSPA              ;Copie la valeur du registre SP dans A
+         ADDA    loc3_6,i    ;Ajoute le décalage de la variable locale
          STA     arg1_3,s
+
          LDA     prm6_6,s    
          STA     arg2_3,s  
  
          SUBSP   prms_3,i    ;allocation des arguments
-
-         CALL    InitGen,i
-
+         CALL    GenCle,i
          ADDSP   prms_3,i    ;liberation arguments
          ;--------- Fin appel --------
 
 
 
-bou_dec: LDX     0,i
+         LDX     0,i
          STX     loc1_6,s    ;int cmpt_gen, cmpt_cle =0;
          STX     loc2_6,s
 
-         LDX     loc1_6,s    ;for(cmpt_gen = 0; cmpt_gen <= lng_msg; cmpt_gen ++){
+bou_dec: LDX     loc1_6,s    ;for(cmpt_gen = 0; cmpt_gen <= lng_msg; cmpt_gen ++){
          CPX     prm2_6,s
          BREQ    fin_dec,i
 
          LDX     loc2_6,s    ;    if( cmpt_cle < taille_N ){
-         CPX     prm6_6,i
+         CPX     prm6_6,s
          BREQ    fincle_6,i
 
 debXOR_6:LDX     loc2_6,s 
-                             ;        msgDec[cmpt_gen] = msgChi[cmpt_gen] ^ tabcle[cmpt_cle];
+                             ;msgChi/msgDec[cmpt_gen] = msgCla/msgChi[cmpt_gen] ^ tabcle[cmpt_cle];
          ;----Appel Xor16 (4)------
-         LDA     prm1_6,s
-         STA     arg1_4,s
-         STX     arg2_4,s
+
+         LDBYTEA loc3_6,sx   ;chargement b ( tabcle[cmpt_cle] )
+         ANDA    0x00ff,i
+         STA     arg2_4,s    ;b dans arg2
+
+         LDX     loc1_6,s    ;chargement a ( msg[cmptgen] )
+         LDBYTEA prm1_6,sxf
+         ANDA    0x00ff,i
+         STA     arg1_4,s    ;a dans arg1
 
          SUBSP   rets_4,i
          SUBSP   prms_4,i
