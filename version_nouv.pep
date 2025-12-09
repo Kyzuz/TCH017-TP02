@@ -171,7 +171,6 @@ e_strin: LDA 0,i         ;msgCla[255] = '\x00'
          ADDA    size_5,i
          STA     arg6_5,s
 
-
          SUBSP   rets_5,i
          SUBSP   prms_5,i
          CALL    Chiff,i
@@ -425,7 +424,7 @@ Chiff:   STA     regA,s
  
          SUBSP   prms_3,i    ;allocation des arguments
 
-         CALL    InitGen,i
+         CALL    GenCle,i
 
          ADDSP   prms_3,i    ;liberation arguments
          ;--------- Fin appel --------
