@@ -690,13 +690,13 @@ f_AffMsg:CHARO   '\n',i      ;printf("\n")
 ;---------------------------------------------------------------------
 ;Message a  l'utilisateur (variables globales)
 m_init:  .ASCII  "Message original : \x00" 
-m_carGen:.ASCII  "Caracteristiques du generateur LCG : \x00"   
+m_carGen:.ASCII  "**** Caractéristiques du générateur LCG **** \x00"   
 m_coefA: .ASCII  "Coeff. a : \x00"
 m_coefC: .ASCII  "Coeff. c : \x00"
 m_grain: .ASCII  "Graine : \x00"
 m_tCle:  .ASCII  "Taille de la cle : \x00"
-m_chi:   .ASCII  "Message chiffre : \x00"
-m_dchi:  .ASCII  "Message dechiffre : \x00"
+m_chi:   .ASCII  "Message chiffré : \x00"
+m_dchi:  .ASCII  "Message déchiffré : \x00"
 
 F_PEP8:  STOP
          .END
